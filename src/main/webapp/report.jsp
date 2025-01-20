@@ -829,6 +829,7 @@
 
         // Download chart data as PDF or Excel
         async function downloadChartData(chartId, filename, format) {
+        	console.log(chartId);
             const chart = chartInstances[chartId];
             if (!chart) {
                 console.error(`Chart with ID ${chartId} not found.`);
@@ -894,19 +895,120 @@
             if (format === 'pdf') {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
+                let pageHeight = doc.internal.pageSize.height;
                 let yOffset = 10;
 
                 try {
+                    // Helper function to create table
+                    function createTable(headers, data, startY) {
+                        const cellWidth = 180 / headers.length;
+                        const cellHeight = 10;
+                        const margin = 15;
+                        
+                        // Draw headers
+                        doc.setFillColor(240, 240, 240);
+                        doc.rect(margin, startY, 180, cellHeight, 'F');
+                        doc.setFont('helvetica', 'bold');
+                        headers.forEach((header, i) => {
+                            doc.text(header, margin + (i * cellWidth) + 2, startY + 7);
+                        });
+                        
+                        // Draw data
+                        doc.setFont('helvetica', 'normal');
+                        data.forEach((row, rowIndex) => {
+                            const rowY = startY + ((rowIndex + 1) * cellHeight);
+                            
+                            // Check if we need a new page
+                            if (rowY + cellHeight > pageHeight - 10) {
+                                doc.addPage();
+                                startY = 10;
+                                return createTable(headers, data.slice(rowIndex), startY);
+                            }
+                            
+                            row.forEach((cell, cellIndex) => {
+                                doc.text(String(cell), margin + (cellIndex * cellWidth) + 2, rowY + 7);
+                            });
+                        });
+                        
+                        return startY + ((data.length + 1) * cellHeight) + 10;
+                    }
+
                     for (let i = 0; i < chartIds.length; i++) {
                         const chart = chartInstances[chartIds[i]];
                         if (chart) {
-                            const { imgURI } = await chart.dataURI();
                             if (i > 0) {
                                 doc.addPage();
                                 yOffset = 10;
                             }
+
+                            // Add title
+                            doc.setFont('helvetica', 'bold');
+                            doc.setFontSize(16);
+                            doc.text(chart.w.config.title.text || chartIds[i], 15, yOffset);
+                            yOffset += 10;
+
+                            // Add chart
+                            const { imgURI } = await chart.dataURI();
                             doc.addImage(imgURI, 'PNG', 15, yOffset, 180, 100);
                             yOffset += 110;
+
+                            // Add table based on chart type
+                            doc.setFontSize(12);
+                            const series = chart.w.config.series;
+                            
+                            switch(chartIds[i]) {
+                                case 'abcChart':
+                                    const abcHeaders = ['Classification', 'Revenue Contribution (%)'];
+                                    const abcData = series.map((value, index) => [
+                                        chart.w.config.labels[index],
+                                        value.toFixed(2)
+                                    ]);
+                                    yOffset = createTable(abcHeaders, abcData, yOffset);
+                                    break;
+
+                                case 'salesChart':
+                                    const salesHeaders = ['Month', 'Current Sales ($)', 'Previous Sales ($)', 'Growth (%)'];
+                                    const salesData = chart.w.config.xaxis.categories.map((month, idx) => [
+                                        month,
+                                        series[0].data[idx].y.toFixed(2),
+                                        series[1].data[idx].y.toFixed(2),
+                                        series[2].data[idx].y.toFixed(2)
+                                    ]);
+                                    yOffset = createTable(salesHeaders, salesData, yOffset);
+                                    break;
+
+                                case 'demandForecastChart':
+                                    const demandHeaders = ['Product', 'Forecast', 'Current Stock', 'Suggested Order'];
+                                    const demandData = series[0].data.map((item, idx) => [
+                                        item.x,
+                                        series[0].data[idx].y.toFixed(0),
+                                        series[1].data[idx].y.toFixed(0),
+                                        series[2].data[idx].y.toFixed(0)
+                                    ]);
+                                    yOffset = createTable(demandHeaders, demandData, yOffset);
+                                    break;
+
+                                case 'inventoryChart':
+                                    const inventoryHeaders = ['Product', 'Turnover Ratio', 'Days Outstanding', 'Units Sold'];
+                                    const inventoryData = series[0].data.map((item, idx) => [
+                                        item.x,
+                                        series[0].data[idx].y.toFixed(2),
+                                        series[1].data[idx].y.toFixed(0),
+                                        series[2].data[idx].y.toFixed(0)
+                                    ]);
+                                    yOffset = createTable(inventoryHeaders, inventoryData, yOffset);
+                                    break;
+
+                                case 'profitabilityChart':
+                                    const profitHeaders = ['Product', 'Profit ($)', 'Profit Margin (%)'];
+                                    const profitData = series[0].data.map((item, idx) => [
+                                        item.x,
+                                        series[0].data[idx].y.toFixed(2),
+                                        series[1].data[idx].y.toFixed(2)
+                                    ]);
+                                    yOffset = createTable(profitHeaders, profitData, yOffset);
+                                    break;
+                            }
                         }
                     }
                     doc.save('complete_analysis_report.pdf');
@@ -914,8 +1016,8 @@
                     console.error("Error generating PDF report:", error);
                 }
             } else if (format === 'excel') {
+                // Existing Excel export code remains unchanged
                 const wb = XLSX.utils.book_new();
-
                 chartIds.forEach(chartId => {
                     const chart = chartInstances[chartId];
                     if (!chart) {
@@ -932,7 +1034,7 @@
                         });
                     });
 
-                    if (rows.length > 1) { // Only add sheets with valid data
+                    if (rows.length > 1) {
                         const ws = XLSX.utils.aoa_to_sheet(rows);
                         XLSX.utils.book_append_sheet(wb, ws, chartId);
                     }
@@ -941,7 +1043,6 @@
                 XLSX.writeFile(wb, 'complete_analysis_report.xlsx');
             }
         }
-
         
 
         // Initialize charts

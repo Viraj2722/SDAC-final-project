@@ -1,118 +1,225 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ERP System - Landing Page</title>
-    <!-- Bootstrap CSS -->
+    <title>ERP System - Welcome</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
     <style>
         body {
-            background: linear-gradient(to right, #6a11cb, #2575fc);
-            font-family: 'Arial', sans-serif;
-            color: #fff;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .card-container {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            perspective: 1000px;
         }
 
         .card {
-            background: #ffffff;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 24px;
+            padding: 3rem 2rem;
             text-align: center;
-            width: 90%;
-            max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            transform-style: preserve-3d;
+            transition: transform 0.6s ease, box-shadow 0.6s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px) rotateX(5deg);
+            box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
+        }
+
+        .glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 24px;
+            background: linear-gradient(45deg, #6366f1, #4f46e5);
+            filter: blur(20px);
+            opacity: 0.5;
+            z-index: -1;
+            transition: all 0.6s ease;
+        }
+
+        .card:hover + .glow {
+            transform: translateY(-10px) scale(1.05);
+            opacity: 0.7;
+        }
+
+        .title {
+            color: #1e293b;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: titleFade 0.8s ease-out forwards;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+            animation: subtitleFade 0.8s ease-out 0.2s forwards;
+            opacity: 0;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            animation: buttonsFade 0.8s ease-out 0.4s forwards;
+            opacity: 0;
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
             position: relative;
             overflow: hidden;
         }
 
-        .card::before {
+        .btn-action::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(to right, #6a11cb, #2575fc);
-            z-index: -1;
-            transform: rotate(45deg);
-            animation: gradient-rotate 6s linear infinite;
-            filter: blur(20px);
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.2) 50%,
+                rgba(255,255,255,0) 100%);
+            transition: all 0.6s ease;
         }
 
-        @keyframes gradient-rotate {
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.2);
+            color: white;
+        }
+
+        .btn-action:hover::before {
+            left: 100%;
+        }
+
+        @keyframes titleFade {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes subtitleFade {
+            from {
+                opacity: 0;
+                transform: translateY(-15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes buttonsFade {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: float 6s infinite;
+        }
+
+        @keyframes float {
             0% {
-                transform: rotate(45deg);
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
             }
             100% {
-                transform: rotate(405deg);
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
             }
-        }
-
-        .card h1 {
-            color: #6a11cb;
-            font-weight: bold;
-            margin-bottom: 20px;
-            font-size: 2rem;
-        }
-
-        .card p {
-            font-size: 1.1rem;
-            color: #555;
-            margin-bottom: 30px;
-        }
-
-        .btn {
-            width: 200px;
-            font-weight: bold;
-            padding: 12px 20px;
-            border-radius: 8px;
-            background: #6a11cb;
-            border: none;
-            color: #fff;
-            margin: 10px 0;
-            transition: transform 0.3s ease, background 0.3s ease;
-        }
-
-        .btn:hover {
-            background: #2575fc;
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(37, 117, 252, 0.6);
-        }
-
-        .btn:focus {
-            outline: none;
-            box-shadow: 0 0 10px rgba(106, 17, 203, 0.8);
         }
     </style>
 </head>
-
 <body>
-    <div class="card">
-        <h1>Welcome to the ERP System</h1>
-        <p>Please choose an option to proceed:</p>
-
-        <!-- Login Button -->
-        <a href="login.jsp">
-            <button class="btn">Login</button>
-        </a>	
-
-        <!-- Sign Up Button -->
-        <a href="signup.jsp">
-            <button class="btn">Sign Up</button>
-        </a>
+    <div class="particles">
+        <script>
+            for(let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                document.querySelector('.particles').appendChild(particle);
+            }
+        </script>
+    </div>
+	
+    <div class="card-container">
+        <div class="card">
+            <h1 class="title">Welcome to ERP</h1>
+            <p class="subtitle">Your complete business management solution</p>
+            
+            <div class="btn-container">
+                <a href="login.jsp" class="btn-action">
+                    Login to Your Account
+                </a>
+                <a href="signup.jsp" class="btn-action" style="background: linear-gradient(135deg, #4f46e5, #6366f1)">
+                    Create New Account
+                </a>
+            </div>
+        </div>
+        <div class="glow"></div>
     </div>
 
-    <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
