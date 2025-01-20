@@ -209,154 +209,161 @@
     <script>
         // Chart creation functions
        function createChart(rawSalesData) {
-        try {
-            let salesData = rawSalesData;
-            console.log('Initial salesData:', salesData);
+    try {
+        let salesData = rawSalesData;
+        console.log('Initial salesData:', salesData);
 
-            // Ensure salesData is parsed if it's a string
-            if (typeof salesData === 'string') {
-                try {
-                    salesData = JSON.parse(salesData);
-                    console.log('Parsed salesData:', salesData);
-                } catch (e) {
-                    console.error("Error parsing sales data:", e);
-                    document.getElementById('errorMessage').innerHTML = 'Error parsing data: ' + e.message;
-                    return;
-                }
-            }
-
-            // If no data, show an error
-            if (!salesData || salesData.length === 0) {
-                document.getElementById('errorMessage').innerHTML = 'No sales data available';
+        // Ensure salesData is parsed if it's a string
+        if (typeof salesData === 'string') {
+            try {
+                salesData = JSON.parse(salesData);
+                console.log('Parsed salesData:', salesData);
+            } catch (e) {
+                console.error("Error parsing sales data:", e);
+                document.getElementById('errorMessage').innerHTML = 'Error parsing data: ' + e.message;
                 return;
             }
+        }
 
-            // Define month order for sorting
-            const monthOrder = {
-                'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
-                'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
-            };
+        // If no data, show an error
+        if (!salesData || salesData.length === 0) {
+            document.getElementById('errorMessage').innerHTML = 'No sales data available';
+            return;
+        }
 
-            // Sort the salesData array by month
-            salesData.sort((a, b) => monthOrder[a.Month] - monthOrder[b.Month]);
+        // Define month order for sorting
+        const monthOrder = {
+            'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+            'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12
+        };
 
-            // Transform the sorted sales data into series
-            const series = [
-                {
-                    name: 'Current Month Sales',
-                    type: 'column',
-                    data: salesData.map(item => ({
-                        x: item.Month,
-                        y: item.CurrentMonthSales
-                    }))
-                },
-                {
-                    name: 'Previous Month Sales',
-                    type: 'column',
-                    data: salesData.map(item => ({
-                        x: item.Month,
-                        y: item.PreviousMonthSales
-                    }))
-                },
-                {
-                    name: 'Growth Rate (%)',
-                    type: 'line',
-                    data: salesData.map(item => ({
-                        x: item.Month,
-                        y: item.GrowthRate
-                    }))
+        // Sort the salesData array by month
+        salesData.sort((a, b) => monthOrder[a.Month] - monthOrder[b.Month]);
+
+        // Transform the sorted sales data into series
+        const series = [
+            {
+                name: 'Current Month Sales',
+                type: 'column',
+                data: salesData.map(item => ({
+                    x: item.Month,
+                    y: item.CurrentMonthSales
+                }))
+            },
+            {
+                name: 'Previous Month Sales',
+                type: 'column',
+                data: salesData.map(item => ({
+                    x: item.Month,
+                    y: item.PreviousMonthSales
+                }))
+            },
+            {
+                name: 'Growth Rate (%)',
+                type: 'line',
+                data: salesData.map(item => ({
+                    x: item.Month,
+                    y: item.GrowthRate
+                }))
+            }
+        ];
+
+        console.log('Transformed series data:', series);
+
+        // Chart options for ApexCharts
+        const options = {
+            series: series,
+            chart: {
+                height: 500,
+                type: 'line',
+                zoom: { enabled: true },
+                toolbar: {
+                    show: true
                 }
-            ];
-
-            console.log('Transformed series data:', series);
-
-            // Chart options for ApexCharts
-            const options = {
-                series: series,
-                chart: {
-                    height: 500,
-                    type: 'line',
-                    zoom: { enabled: true },
-                    toolbar: {
-                        show: true
+            },
+            title: {
+                text: 'Sales Trend Analysis',
+                align: 'center'
+            },
+            stroke: {
+                width: [0, 0, 3],
+                curve: 'smooth'
+            },
+            colors: ['#008FFB', '#00E396', '#FEB019'],
+            xaxis: {
+                title: { text: 'Months' },
+                categories: salesData.map(item => item.Month),
+                tickPlacement: 'on'
+            },
+            yaxis: [
+                {
+                    title: { text: 'Sales Amount' },
+                    labels: {
+                        formatter: function(val) {
+                            return '$' + val.toFixed(2);
+                        }
                     }
                 },
-                stroke: {
-                    width: [0, 0, 3],
-                    curve: 'smooth'
-                },
-                colors: ['#008FFB', '#00E396', '#FEB019'],
-                xaxis: {
-                    title: { text: 'Months' },
-                    categories: salesData.map(item => item.Month),
-                    tickPlacement: 'on'
-                },
-                yaxis: [
+                {
+                    opposite: true,
+                    title: { text: 'Growth Rate (%)' },
+                    labels: {
+                        formatter: function(val) {
+                            return val.toFixed(1) + '%';
+                        }
+                    }
+                }
+            ],
+            plotOptions: {
+                bar: {
+                    columnWidth: '50%',
+                    borderRadius: 5
+                }
+            },
+            dataLabels: {
+                enabled: false
+            },
+            fill: {
+                opacity: [0.85, 0.85, 1],
+            },
+            legend: {
+                position: 'top'
+            },
+            tooltip: {
+                shared: true,
+                intersect: false,
+                y: [
                     {
-                        title: { text: 'Sales Amount' },
-                        labels: {
-                            formatter: function(val) {
-                                return '$' + val.toFixed(2);
-                            }
+                        formatter: function(y) {
+                            return '$' + y.toFixed(2);
                         }
                     },
                     {
-                        opposite: true,
-                        title: { text: 'Growth Rate (%)' },
-                        labels: {
-                            formatter: function(val) {
-                                return val.toFixed(1) + '%';
-                            }
+                        formatter: function(y) {
+                            return '$' + y.toFixed(2);
+                        }
+                    },
+                    {
+                        formatter: function(y) {
+                            return y.toFixed(1) + '%';
                         }
                     }
-                ],
-                plotOptions: {
-                    bar: {
-                        columnWidth: '50%',
-                        borderRadius: 5
-                    }
-                },
-                dataLabels: {
-                    enabled: false
-                },
-                fill: {
-                    opacity: [0.85, 0.85, 1],
-                },
-                legend: {
-                    position: 'top'
-                },
-                tooltip: {
-                    shared: true,
-                    intersect: false,
-                    y: [
-                        {
-                            formatter: function(y) {
-                                return '$' + y.toFixed(2);
-                            }
-                        },
-                        {
-                            formatter: function(y) {
-                                return '$' + y.toFixed(2);
-                            }
-                        },
-                        {
-                            formatter: function(y) {
-                                return y.toFixed(1) + '%';
-                            }
-                        }
-                    ]
-                }
-            };
+                ]
+            }
+        };
 
-            // Create and render the chart
-            const chart = new ApexCharts(document.querySelector("#salesChart"), options);
-            chart.render();
+        // Create and render the chart
+        const chart = new ApexCharts(document.querySelector("#salesChart"), options);
+        chart.render();
+        
+        // Store the chart instance
+        chartInstances.salesChart = chart;
 
-        } catch (error) {
-            console.error("Error in createChart:", error);
-            document.getElementById('errorMessage').innerHTML = 'Error creating chart: ' + error.message;
-        }
+    } catch (error) {
+        console.error("Error in createChart:", error);
+        document.getElementById('errorMessage').innerHTML = 'Error creating chart: ' + error.message;
     }
+}
         function createABCChart(rawAbcData) {
             try {
                 let abcData = rawAbcData;
@@ -828,61 +835,147 @@
         const chartInstances = {};
 
         // Download chart data as PDF or Excel
-        async function downloadChartData(chartId, filename, format) {
-        	console.log(chartId);
-            const chart = chartInstances[chartId];
-            if (!chart) {
-                console.error(`Chart with ID ${chartId} not found.`);
-                return;
-            }
+       async function downloadChartData(chartId, filename, format) {
+    const chart = chartInstances[chartId];
+    if (!chart) {
+        console.error(`Chart with ID ${chartId} not found.`);
+        return;
+    }
 
-            if (format === 'pdf') {
-                try {
-                    const { imgURI } = await chart.dataURI();
-                    const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF();
-                    const chartWidth = chart.w.globals.svgWidth;
-                    const chartHeight = chart.w.globals.svgHeight;
-                    
-                    // Calculate the aspect ratio
-                    const aspectRatio = chartHeight / chartWidth;
-                    
-                    // Set PDF page dimensions (assuming A4 in points: 595.28 x 841.89)
-                    const pageWidth = doc.internal.pageSize.getWidth();
-                    const maxWidth = pageWidth - 30; // 15pt margin on each side
-                    
-                    // Calculate height while maintaining aspect ratio
-                    const width = maxWidth;
-                    const height = width * aspectRatio;
-                    
-                    // Add image with calculated dimensions
-                    doc.addImage(imgURI, 'PNG', 15, 15, width, height);
-                    doc.save(`${filename}.pdf`);
-                } catch (error) {
-                    console.error("Error generating PDF:", error);
-                }
-            } else if (format === 'excel') {
-                // Generate Excel with chart data
-                const series = chart.w.config.series || [];
-                const rows = [['Series', 'Category', 'Value']]; // Header row
+    if (format === 'pdf') {
+        try {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            let yOffset = 10;
 
-                series.forEach(s => {
-                    (s.data || []).forEach(point => {
-                        rows.push([s.name, point.x, point.y]);
+            // Helper function to create table
+            function createTable(headers, data, startY) {
+                const cellWidth = 180 / headers.length;
+                const cellHeight = 10;
+                const margin = 15;
+                
+                // Draw headers
+                doc.setFillColor(240, 240, 240);
+                doc.rect(margin, startY, 180, cellHeight, 'F');
+                doc.setFont('helvetica', 'bold');
+                headers.forEach((header, i) => {
+                    doc.text(header, margin + (i * cellWidth) + 2, startY + 7);
+                });
+                
+                // Draw data
+                doc.setFont('helvetica', 'normal');
+                data.forEach((row, rowIndex) => {
+                    const rowY = startY + ((rowIndex + 1) * cellHeight);
+                    
+                    // Check if we need a new page
+                    if (rowY + cellHeight > doc.internal.pageSize.height - 10) {
+                        doc.addPage();
+                        startY = 10;
+                        return createTable(headers, data.slice(rowIndex), startY);
+                    }
+                    
+                    row.forEach((cell, cellIndex) => {
+                        doc.text(String(cell), margin + (cellIndex * cellWidth) + 2, rowY + 7);
                     });
                 });
-
-                if (rows.length > 1) { // Ensure there's data to export
-                    const wb = XLSX.utils.book_new();
-                    const ws = XLSX.utils.aoa_to_sheet(rows);
-                    XLSX.utils.book_append_sheet(wb, ws, 'Chart Data');
-                    XLSX.writeFile(wb, `${filename}.xlsx`);
-                } else {
-                    console.warn("No data available for export.");
-                }
+                
+                return startY + ((data.length + 1) * cellHeight) + 10;
             }
-        }
 
+            // Add title
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(16);
+            doc.text(chart.w.config.title.text || chartId, 15, yOffset);
+            yOffset += 10;
+
+            // Add chart
+            const { imgURI } = await chart.dataURI();
+            doc.addImage(imgURI, 'PNG', 15, yOffset, 180, 100);
+            yOffset += 110;
+
+            // Add table based on chart type
+            doc.setFontSize(12);
+            const series = chart.w.config.series;
+
+            switch(chartId) {
+                case 'abcChart':
+                    const abcHeaders = ['Classification', 'Revenue Contribution (%)'];
+                    const abcData = series.map((value, index) => [
+                        chart.w.config.labels[index],
+                        value.toFixed(2)
+                    ]);
+                    createTable(abcHeaders, abcData, yOffset);
+                    break;
+
+                case 'salesChart':
+                    const salesHeaders = ['Month', 'Current Sales ($)', 'Previous Sales ($)', 'Growth (%)'];
+                    const salesData = chart.w.config.xaxis.categories.map((month, idx) => [
+                        month,
+                        series[0].data[idx].y.toFixed(2),
+                        series[1].data[idx].y.toFixed(2),
+                        series[2].data[idx].y.toFixed(2)
+                    ]);
+                    createTable(salesHeaders, salesData, yOffset);
+                    break;
+
+                case 'demandForecastChart':
+                    const demandHeaders = ['Product', 'Forecast', 'Current Stock', 'Suggested Order'];
+                    const demandData = series[0].data.map((item, idx) => [
+                        item.x,
+                        series[0].data[idx].y.toFixed(0),
+                        series[1].data[idx].y.toFixed(0),
+                        series[2].data[idx].y.toFixed(0)
+                    ]);
+                    createTable(demandHeaders, demandData, yOffset);
+                    break;
+
+                case 'inventoryChart':
+                    const inventoryHeaders = ['Product', 'Turnover Ratio', 'Days Outstanding', 'Units Sold'];
+                    const inventoryData = series[0].data.map((item, idx) => [
+                        item.x,
+                        series[0].data[idx].y.toFixed(2),
+                        series[1].data[idx].y.toFixed(0),
+                        series[2].data[idx].y.toFixed(0)
+                    ]);
+                    createTable(inventoryHeaders, inventoryData, yOffset);
+                    break;
+
+                case 'profitabilityChart':
+                    const profitHeaders = ['Product', 'Profit ($)', 'Profit Margin (%)'];
+                    const profitData = series[0].data.map((item, idx) => [
+                        item.x,
+                        series[0].data[idx].y.toFixed(2),
+                        series[1].data[idx].y.toFixed(2)
+                    ]);
+                    createTable(profitHeaders, profitData, yOffset);
+                    break;
+            }
+
+            doc.save(`${filename}.pdf`);
+        } catch (error) {
+            console.error("Error generating PDF:", error);
+        }
+    } else if (format === 'excel') {
+        // Generate Excel with chart data and table
+        const series = chart.w.config.series || [];
+        const rows = [['Series', 'Category', 'Value']];
+
+        series.forEach(s => {
+            (s.data || []).forEach(point => {
+                rows.push([s.name, point.x, point.y]);
+            });
+        });
+
+        if (rows.length > 1) {
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+            XLSX.utils.book_append_sheet(wb, ws, 'Chart Data');
+            XLSX.writeFile(wb, `${filename}.xlsx`);
+        } else {
+            console.warn("No data available for export.");
+        }
+    }
+}
         async function downloadReport(format) {
             const chartIds = [
                 'abcChart',
