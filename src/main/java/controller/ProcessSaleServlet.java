@@ -26,7 +26,7 @@ public class ProcessSaleServlet extends HttpServlet {
             // Get customer ID from session
             HttpSession session = request.getSession();
             Integer customerId = (Integer) session.getAttribute("customerId");
-            if (customerId == null) customerId = 53; // Default customer ID if not logged in
+            if (customerId == null) customerId = 52; // Default customer ID if not logged in
 
             // Database connection
             Class.forName("com.mysql.cj.jdbc.Driver");

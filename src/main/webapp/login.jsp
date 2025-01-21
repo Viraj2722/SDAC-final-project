@@ -11,16 +11,17 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
 
-        /* Modern Gradient Background */
+        /* Modern Dark Theme */
         body {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+            background-color: #000000;
+            color: #ffffff;
             padding: 1rem;
         }
 
@@ -28,25 +29,10 @@
         .card {
             width: 100%;
             max-width: 420px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 1rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            background: #111111;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.1), 0 2px 4px -1px rgba(255, 255, 255, 0.06);
             overflow: hidden;
-            transform: translateY(0);
-            transition: transform 0.3s ease;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         /* Header Styles */
@@ -59,32 +45,28 @@
             width: 4rem;
             height: 4rem;
             margin: 0 auto 1rem;
-            background: linear-gradient(135deg, #6366f1, #a855f7);
+            background: #ffffff;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         .logo-container svg {
             width: 2rem;
             height: 2rem;
-            color: white;
+            color: #000000;
         }
 
         .title {
             font-size: 1.5rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #6366f1, #a855f7);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            color: #ffffff;
             margin-bottom: 0.5rem;
         }
 
         .subtitle {
-            color: #6b7280;
+            color: #a0aec0;
             font-size: 0.875rem;
         }
 
@@ -95,93 +77,63 @@
 
         .form-group {
             margin-bottom: 1.25rem;
-            position: relative;
         }
 
         .form-label {
             display: block;
             font-size: 0.875rem;
             font-weight: 500;
-            color: #374151;
+            color: #e2e8f0;
             margin-bottom: 0.5rem;
         }
 
-        .input-container {
-            position: relative;
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 0.75rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6b7280;
-            width: 1rem;
-            height: 1rem;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 0.625rem 0.75rem 0.625rem 2.5rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            transition: all 0.2s ease;
-            background: white;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-
+        .form-input,
         .form-select {
             width: 100%;
             padding: 0.625rem 0.75rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
+            border: 1px solid #2d3748;
+            border-radius: 0.375rem;
             font-size: 0.875rem;
-            background: white;
-            color: #374151;
-            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #1a202c;
+            color: #ffffff;
         }
 
+        .form-input:focus,
         .form-select:focus {
             outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            border-color: #4a5568;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
         }
 
         /* Button Styles */
         .submit-button {
             width: 100%;
             padding: 0.75rem;
-            background: linear-gradient(135deg, #6366f1, #a855f7);
-            color: white;
+            background: #4299e1;
+            color: #ffffff;
             border: none;
-            border-radius: 0.5rem;
+            border-radius: 0.375rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
         }
 
         .submit-button:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
+            background: #3182ce;
         }
 
         .submit-button:active {
-            transform: translateY(0);
+            background: #2b6cb0;
         }
 
         /* Error Message */
         .error-message {
-            background: #fee2e2;
-            border: 1px solid #fecaca;
-            color: #ef4444;
+            background: #742a2a;
+            border: 1px solid #9b2c2c;
+            color: #fed7d7;
             padding: 0.75rem;
-            border-radius: 0.5rem;
+            border-radius: 0.375rem;
             font-size: 0.875rem;
             margin-bottom: 1rem;
         }
@@ -194,14 +146,14 @@
         }
 
         .signup-link a {
-            color: #6366f1;
+            color: #4299e1;
             text-decoration: none;
             font-weight: 500;
             transition: color 0.2s ease;
         }
 
         .signup-link a:hover {
-            color: #4f46e5;
+            color: #3182ce;
         }
 
         /* Loading Animation */
@@ -223,7 +175,7 @@
             top: 50%;
             width: 1.25rem;
             height: 1.25rem;
-            border: 2px solid white;
+            border: 2px solid #ffffff;
             border-top-color: transparent;
             border-radius: 50%;
             transform: translate(-50%, -50%);
@@ -254,24 +206,12 @@
             <form action="LoginServlet" method="POST" id="loginForm">
                 <div class="form-group">
                     <label class="form-label" for="mailID">Email Address</label>
-                    <div class="input-container">
-                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                            <polyline points="22,6 12,13 2,6"></polyline>
-                        </svg>
-                        <input type="email" id="mailID" name="mailID" class="form-input" placeholder="name@example.com" required>
-                    </div>
+                    <input type="email" id="mailID" name="mailID" class="form-input" placeholder="name@example.com" required>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="password">Password</label>
-                    <div class="input-container">
-                        <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                        </svg>
-                        <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
-                    </div>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
                 </div>
 
                 <div class="form-group">
