@@ -9,13 +9,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import db.GetConnection;
+import interfaces.Feedback_Operations_Interface;
 import model.FeedbackPojo;
 import model.ProductPojo;
 
-public class Feedback_Operations {
+public class Feedback_Operations implements Feedback_Operations_Interface {
 	
    
-    public static List<Map<String, Object>> fetchFeedbackByCustomer(int customerID) {
+    public List<Map<String, Object>> fetchFeedbackByCustomer(int customerID) {
         List<Map<String, Object>> feedbackList = new ArrayList<>();
         String query = "SELECT f.feedbackID, f.comments, f.ratings, f.timestamp " +
                        "FROM feedback f " +
@@ -42,7 +43,7 @@ public class Feedback_Operations {
         return feedbackList;
     }
 
-    public static boolean addFeedback(int customerID, int productID, String comments, double ratings) {
+    public boolean addFeedback(int customerID, int productID, String comments, double ratings) {
         String query = "INSERT INTO feedback (customerID, productID, comments, ratings, timestamp) " +
                        "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)";
 
@@ -61,7 +62,7 @@ public class Feedback_Operations {
             return false;
         }
     }
-    public static boolean addReply(int customerID, int productID, int parentFeedbackID, String comments) {
+    public boolean addReply(int customerID, int productID, int parentFeedbackID, String comments) {
         String query = "INSERT INTO feedback (customerID, productID, comments, parentFeedbackID, timestamp) " +
                        "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)";
         try (Connection conn = GetConnection.getConnection();
@@ -80,7 +81,7 @@ public class Feedback_Operations {
     }
 
     // Delete feedback
-    public static boolean deleteFeedback(int feedbackID) {
+    public boolean deleteFeedback(int feedbackID) {
         String query = "DELETE FROM feedback WHERE feedbackID = ?";
         try (Connection conn = GetConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -94,7 +95,7 @@ public class Feedback_Operations {
         }
     }
     
-    public static boolean addFeedback(FeedbackPojo feedback) {
+    public boolean addFeedback(FeedbackPojo feedback) {
         Connection conn = null;
         PreparedStatement ps = null;
         
@@ -123,7 +124,7 @@ public class Feedback_Operations {
         }
     }
     
-    public static boolean hasCustomerReviewed(int productId, int customerId) {
+    public boolean hasCustomerReviewed(int productId, int customerId) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -156,7 +157,7 @@ public class Feedback_Operations {
         }
     }
     
-    public static int getCustomerIdByEmail(String email) {
+    public int getCustomerIdByEmail(String email) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -187,7 +188,7 @@ public class Feedback_Operations {
             }
         }
     }
-    public static List<FeedbackPojo> getFeedbackByProductId(int productId) {
+    public List<FeedbackPojo> getFeedbackByProductId(int productId) {
         List<FeedbackPojo> feedbackList = new ArrayList<>();
         String query = "SELECT f.FeedbackID, f.ProductID, f.CustomerID, f.Comments, f.Rating, f.FeedbackDate, c.Name " +
                        "FROM feedback f " +

@@ -209,6 +209,8 @@
     <script>
     
     let abcData = <%=request.getAttribute("abcData")%>;
+    let salesData = <%=request.getAttribute("salesData")%>;
+    
     if (typeof abcData === 'string') {
         try {
             abcData = JSON.parse(abcData);
@@ -361,6 +363,7 @@
             // Create and render the chart
             const chart = new ApexCharts(document.querySelector("#salesChart"), options);
             chart.render();
+            chartInstances.salesChart = chart; 
 
         } catch (error) {
             console.error("Error in createChart:", error);
@@ -570,21 +573,21 @@
                     {
                         name: 'Forecast Monthly Demand',
                         data: demandData.map(item => ({
-                            x: 'Product ' + item.product_id,
+                            x: item.product_name,
                             y: item.forecast_monthly_demand
                         }))
                     },
                     {
                         name: 'Current Stock',
                         data: demandData.map(item => ({
-                            x: 'Product ' + item.product_id,
+                            x: item.product_name,
                             y: item.current_stock
                         }))
                     },
                     {
                         name: 'Suggested Order',
                         data: demandData.map(item => ({
-                            x: 'Product ' + item.product_id,
+                            x: item.product_name,
                             y: item.suggested_order
                         }))
                     }
@@ -722,7 +725,7 @@
                         name: 'Profit',
                         type: 'column',
                         data: profitData.map(item => ({
-                            x: 'Product ' + item.ProductID,
+                            x: 'Product ' + item.ProductName,
                             y: item.Profit
                         }))
                     },
@@ -730,7 +733,7 @@
                         name: 'Profit Margin (%)',
                         type: 'line',
                         data: profitData.map(item => ({
-                            x: 'Product ' + item.ProductID,
+                            x: 'Product ' + item.ProductName,
                             y: item.ProfitMargin
                         }))
                     }
@@ -839,52 +842,56 @@
 
         // Download chart data as PDF or Excel
         async function downloadChartData(chartId, filename, format) {
-        	console.log(chartId);
-            const chart = chartInstances[chartId];
-            if (!chart) {
-                console.error(`Chart with ID ${chartId} not found.`);
-                return;
-            }
+    console.log(chartId);
+    const chart = chartInstances[chartId];
+    if (!chart) {
+        console.error(`Chart with ID ${chartId} not found.`);
+        return;
+    }
 
-            if (format === 'pdf') {
-                try {
-                	const { imgURI } = await chart.dataURI();
-                	const chartWidth = chart.w.globals.svgWidth;
-                	const chartHeight = chart.w.globals.svgHeight;
-                	const aspectRatio = chartHeight / chartWidth;
+    if (format === 'pdf') {
+        try {
+            // Create new jsPDF instance
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const { imgURI } = await chart.dataURI();
+            const chartWidth = chart.w.globals.svgWidth;
+            const chartHeight = chart.w.globals.svgHeight;
+            const aspectRatio = chartHeight / chartWidth;
 
-                	// Use a reasonable base width for the PDF
-                	const baseWidth = 160; // Slightly smaller than 180 to leave margins
-                	const width = baseWidth;
-                	const height = baseWidth * aspectRatio; // This maintains the circular shape
+            // Use a reasonable base width for the PDF
+            const baseWidth = 160; // Slightly smaller than 180 to leave margins
+            const width = baseWidth;
+            const height = baseWidth * aspectRatio; // This maintains the circular shape
 
-                	// Add image with calculated dimensions
-                	doc.addImage(imgURI, 'PNG', 15, yOffset, width, height);
-                    doc.save(`${filename}.pdf`);
-                } catch (error) {
-                    console.error("Error generating PDF:", error);
-                }
-            } else if (format === 'excel') {
-                // Generate Excel with chart data
-                const series = chart.w.config.series || [];
-                const rows = [['Series', 'Category', 'Value']]; // Header row
-
-                series.forEach(s => {
-                    (s.data || []).forEach(point => {
-                        rows.push([s.name, point.x, point.y]);
-                    });
-                });
-
-                if (rows.length > 1) { // Ensure there's data to export
-                    const wb = XLSX.utils.book_new();
-                    const ws = XLSX.utils.aoa_to_sheet(rows);
-                    XLSX.utils.book_append_sheet(wb, ws, 'Chart Data');
-                    XLSX.writeFile(wb, `${filename}.xlsx`);
-                } else {
-                    console.warn("No data available for export.");
-                }
-            }
+            // Add image with calculated dimensions
+            doc.addImage(imgURI, 'PNG', 15, 10, width, height);
+            doc.save(`${filename}.pdf`);
+        } catch (error) {
+            console.error("Error generating PDF:", error);
         }
+    } else if (format === 'excel') {
+        // Excel export code remains the same
+        const series = chart.w.config.series || [];
+        const rows = [['Series', 'Category', 'Value']]; // Header row
+
+        series.forEach(s => {
+            (s.data || []).forEach(point => {
+                rows.push([s.name, point.x, point.y]);
+            });
+        });
+
+        if (rows.length > 1) {
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+            XLSX.utils.book_append_sheet(wb, ws, 'Chart Data');
+            XLSX.writeFile(wb, `${filename}.xlsx`);
+        } else {
+            console.warn("No data available for export.");
+        }
+    }
+}
 
         async function downloadReport(format) {
             const chartIds = [
@@ -901,7 +908,6 @@
                 let pageHeight = doc.internal.pageSize.height;
                 let yOffset = 10;
 
-                try {
                     // Helper function to create table
                     function createTable(headers, data, startY) {
     const margin = 15;
@@ -1018,13 +1024,16 @@
 
                                 case 'salesChart':
                                     const salesHeaders = ['Month', 'Current Sales ($)', 'Previous Sales ($)', 'Growth (%)'];
-                                    const salesData = chart.w.config.xaxis.categories.map((month, idx) => [
-                                        month,
-                                        series[0].data[idx].y.toFixed(2),
-                                        series[1].data[idx].y.toFixed(2),
-                                        series[2].data[idx].y.toFixed(2)
+                                    
+                                    const salesData1 = salesData
+                                    
+                                    const dispData1 = salesData1.map(item => [
+                                    	item.Month,
+                                    	item.CurrentMonthSales,
+                                    	item.PreviousMonthSales,
+                                    	item.GrowthRate
                                     ]);
-                                    yOffset = createTable(salesHeaders, salesData, yOffset);
+                                    yOffset = createTable(salesHeaders, dispData1, yOffset);
                                     break;
 
                                 case 'demandForecastChart':
@@ -1062,9 +1071,7 @@
                         }
                     }
                     doc.save('complete_analysis_report.pdf');
-                } catch (error) {
-                    console.error("Error generating PDF report:", error);
-                }
+                
             } else if (format === 'excel') {
                 // Existing Excel export code remains unchanged
                 const wb = XLSX.utils.book_new();

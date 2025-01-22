@@ -9,9 +9,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import db.GetConnection;
+import interfaces.Sale_Operations_Interface;
 import model.ProductPojo;
 
-public class Sale_Operations {
+public class Sale_Operations implements Sale_Operations_Interface{
 
     
     public Map<Integer, Map<String, Object>> getSalesSummary() {
@@ -114,7 +115,7 @@ public class Sale_Operations {
         return productSalesData;
     }
 
-public static boolean reduceStock(int productID, int quantity) {
+public boolean reduceStock(int productID, int quantity) {
     String sql = "UPDATE products SET Stock = Stock - ? WHERE ProductID = ? AND Stock >= ?";
     try (Connection conn = GetConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -128,7 +129,7 @@ public static boolean reduceStock(int productID, int quantity) {
     return false;
 }
 
-public static boolean processSale(int customerID, Map<Integer, Integer> items, BigDecimal totalAmount, String paymentMethod) {
+public boolean processSale(int customerID, Map<Integer, Integer> items, BigDecimal totalAmount, String paymentMethod) {
     Connection conn = null;
     boolean success = false;
     try {

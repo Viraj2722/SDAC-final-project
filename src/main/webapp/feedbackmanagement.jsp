@@ -399,7 +399,7 @@ tr:hover {
 								<th>Comments</th>
 								<th>Rating</th>
 								<th>Date</th>
-								<th>Actions</th>
+								
 							</tr>
 						</thead>
 						<tbody id="feedbackTableBody">
@@ -426,12 +426,7 @@ tr:hover {
 								<td><%=comments%></td>
 								<td><%=rating%></td>
 								<td><%=feedbackDate%></td>
-								<td>
-									<button class="btn btn-delete"
-										onclick="deleteFeedback(<%=feedbackId%>)">
-										<i class="fas fa-trash"></i> Delete
-									</button>
-								</td>
+								
 							</tr>
 							<%
 							}

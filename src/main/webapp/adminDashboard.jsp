@@ -31,7 +31,8 @@
 }
 
 body {
-	background: var(--background);
+	background-color: #f0f2f5;
+	color: #1a1a1a;
 }
 
 .layout-container {
@@ -41,38 +42,64 @@ body {
 
 .sidebar {
 	width: 280px;
-	height: 100vh;
-	background: var(--purple);
-	color: var(--white);
-	padding: 1.5rem;
-	display: flex;
-	flex-direction: column;
+	background-color: white;
+	box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+	padding: 2rem 0;
 	position: fixed;
+	height: 100vh;
+	z-index: 100;
+}
+
+.sidebar-header {
+	padding: 0 1.5rem 2rem 1.5rem;
+	border-bottom: 1px solid #eee;
+	margin-bottom: 1rem;
 }
 
 .sidebar-logo {
+	color: #4834d4;
 	font-size: 1.5rem;
 	font-weight: bold;
-	margin-bottom: 2rem;
-	color: var(--yellow);
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 }
 
 .sidebar-btn {
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
-	margin: 0.5rem 0;
-	padding: 1rem;
-	border-radius: 12px;
-	color: var(--white);
-	background: transparent;
+	gap: 0.8rem;
+	width: 100%;
+	padding: 1rem 1.5rem;
+	background: none;
 	border: none;
+	color: #666;
+	text-align: left;
+	font-size: 0.95rem;
+	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.3s ease;
 }
 
-.sidebar-btn:hover, .sidebar-btn.active {
-	background: var(--pink);
+.sidebar-btn:hover {
+	background-color: #f8f9fa;
+	color: #4834d4;
+}
+
+.sidebar-btn.active {
+	background-color: #4834d4;
+	color: white;
+	position: relative;
+}
+
+.sidebar-btn.active::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: 100%;
+	width: 4px;
+	background-color: #2d1faa;
 }
 
 .main-content {
@@ -80,16 +107,17 @@ body {
 	/* padding: 2rem; */
 	overflow-y: auto;
 	margin-left: 280px; /* Space for the sidebar */
-    padding: 20px;
+	padding: 20px;
 }
 
 .main-header {
-	background: var(--blue);
+	background: var(--white);
 	padding: 1.5rem;
 	border-radius: 12px;
-	color: var(--white);
+	color: #4834d4;
 	margin-bottom: 2rem;
 	text-align: center;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1)
 }
 
 .abc-section {
@@ -152,6 +180,23 @@ body {
 	color: var(--text-primary);
 	font-size: 1.25rem;
 	margin-bottom: 1rem;
+}
+
+.count-container {
+	text-align: center;
+	margin-top: 10px;
+}
+
+.count-container span:first-child {
+	font-size: 24px;
+	font-weight: bold;
+	color: var(--purple);
+	display: block;
+}
+
+.count-container span:last-child {
+	color: var(--text-secondary);
+	font-size: 14px;
 }
 
 .modal {
@@ -259,6 +304,14 @@ body {
 	color: var(--text-secondary);
 }
 
+.count {
+	font-size: 24px;
+	font-weight: bold;
+	color: var(--purple);
+	display: block;
+	margin: 10px 0;
+}
+
 @media ( max-width : 1024px) {
 	.abc-section {
 		grid-template-columns: 1fr;
@@ -279,10 +332,12 @@ body {
 </head>
 <body>
 	<div class="layout-container">
+		<!-- Sidebar -->
 		<div class="sidebar">
-		
-			<div class="sidebar-logo">
-				<i class="fas fa-shield-alt"></i> Admin Panel
+			<div class="sidebar-header">
+				<a class="sidebar-logo" href='adminPanel.jsp'> <i
+					class="fas fa-shield-alt"></i> Admin Panel
+				</a>
 			</div>
 			<button class="sidebar-btn active">
 				<i class="fas fa-chart-pie"></i> Dashboard
@@ -315,31 +370,27 @@ body {
 
 			<!-- ABC Analysis Section -->
 			<div class="abc-section">
-
 				<div class="chart-container">
 					<div id="abcChart"></div>
 				</div>
 				<div class="abc-details">
 					<div class="abc-box">
 						<h3>Category A</h3>
-						<p id="categoryA">
-							<br>
-							<span>Products</span>
-						</p>
+						<div class="count-container">
+							<span id="categoryACount"></span> <span>Products</span>
+						</div>
 					</div>
 					<div class="abc-box">
 						<h3>Category B</h3>
-						<p id="categoryB">
-							<br>
-							<span>Products</span>
-						</p>
+						<div class="count-container">
+							<span id="categoryBCount"></span> <span>Products</span>
+						</div>
 					</div>
 					<div class="abc-box">
 						<h3>Category C</h3>
-						<p id="categoryC">
-							<br>
-							<span>Products</span>
-						</p>
+						<div class="count-container">
+							<span id="categoryCCount"></span> <span>Products</span>
+						</div>
 					</div>
 					<button class="abc-table-btn">View Detailed Table</button>
 				</div>
@@ -433,55 +484,6 @@ body {
         
         
     }
-    
-    function updateCategoryCounts(data) {
-        console.log('Updating counts for data length:', data.length);
-
-        try {
-            // Initialize counters
-            let counts = {
-                A: 0,
-                B: 0,
-                C: 0
-            };
-            
-            // Count items
-            data.forEach(item => {
-                if (item && item.classification) {
-                    counts[item.classification]++;
-                    console.log(`Found item with classification: ${item.classification}`);
-                }
-            });
-
-            console.log('Final counts:', {
-                'Category A': counts.A,
-                'Category B': counts.B,
-                'Category C': counts.C
-            });
-
-            // Update DOM elements directly
-            ['A', 'B', 'C'].forEach(category => {
-                const element = document.getElementById(`category${category}`);
-                if (element) {
-                    element.innerHTML = `
-                        <p>
-                            ${counts[category]}<br>
-                            <span>Products</span>
-                        </p>
-                    `;
-                    console.log(`Updated category ${category} with count: ${counts[category]}`);
-                } else {
-                    console.error(`Element categoryA${category} not found`);
-                }
-            });
-
-        } catch (error) {
-            console.error('Error in updateCategoryCounts:', error);
-            console.error('Stack trace:', error.stack);
-        }
-    }
-
-    // Call updateCategoryCounts when DOM is loaded
     
     
     function createChart(rawSalesData) {
@@ -1113,6 +1115,24 @@ body {
                 document.getElementById('profitErrorMessage').innerHTML = 'Error creating profitability chart: ' + error.message;
             }
         }
+        
+        function updateCategoryCounts(data) {
+            let counts = {A: 0, B: 0, C: 0};
+            
+            if (typeof data === 'string') {
+                data = JSON.parse(data);
+            }
+            
+            data.forEach(item => {
+                if (item && item.classification) {
+                    counts[item.classification]++;
+                }
+            });
+            
+            document.getElementById('categoryACount').textContent = counts.A;
+            document.getElementById('categoryBCount').textContent = counts.B;
+            document.getElementById('categoryCCount').textContent = counts.C;
+        }
             
 
         // Initialize both charts
@@ -1131,6 +1151,7 @@ body {
             
             createChart(rawSalesData);
             createABCChart(rawAbcData);
+            updateCategoryCounts(rawAbcData);
             createITRChart(rawInventoryData);
             createDemandForecastChart(rawDemandData);
             createProfitabilityChart(rawProfitData);

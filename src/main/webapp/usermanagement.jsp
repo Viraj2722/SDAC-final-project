@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+    pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*"%>
 <%@ page import="db.GetConnection"%>
 <!DOCTYPE html>
@@ -7,9 +7,7 @@
 <head>
 <meta charset="UTF-8">
 <title>User Management</title>
-<link
-	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-	rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <style>
 * {
 	margin: 0;
@@ -123,8 +121,6 @@ body {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.5rem;
-	cursor: pointer;
-	transition: 0.3s;
 }
 
 /* Content Container */
@@ -366,33 +362,97 @@ select.form-input {
 		padding: 1rem;
 	}
 }
+/* Modal Styles */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 90%;
+    z-index: 1001;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+}
+
+.close-modal:hover {
+    color: #333;
+}
+
+.action-button {
+    background-color: #4834d4;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.action-button:hover {
+    background-color: #3a2ab3;
+    transform: translateY(-2px);
+}
+
 </style>
 </head>
 <body>
-	<div class="layout-container">
+<div class="layout-container">
 		<!-- Sidebar -->
 		<div class="sidebar">
 			<div class="sidebar-header">
-				<a class="sidebar-logo" href='adminPanel.jsp'> <i
-					class="fas fa-shield-alt"></i> Admin Panel
-				</a>
+				<div class="sidebar-logo">
+					<i class="fas fa-shield-alt"></i> Admin Panel
+				</div>
 			</div>
 			<button class="sidebar-btn active">
 				<i class="fas fa-users"></i> User Management
 			</button>
-			<button class="sidebar-btn"
-				onclick="location.href='feedbackmanagement.jsp'">
+			<button class="sidebar-btn" onclick="location.href='feedback.jsp'">
 				<i class="fas fa-comments"></i> Feedback Management
 			</button>
-			<button class="sidebar-btn"
-				onclick="location.href='productmanagement.jsp'">
+			<button class="sidebar-btn" onclick="location.href='product.jsp'">
 				<i class="fas fa-box"></i> Product Management
 			</button>
-			<a class="sidebar-btn" onclick="location.href='algomonitoring.jsp'">
-				<i class="fas fa-chart-line"></i> Algorithm Monitoring
-			</a> <a class="sidebar-btn" onclick="location.href='ReportServlet'">
-				<i class="fas fa-file-download"></i> Report Generation
-			</a>
+			<button class="sidebar-btn" onclick="location.href='algorithm.jsp'">
+                <i class="fas fa-chart-line"></i> Algorithm Monitoring
+            </button>
+            <button class="sidebar-btn" onclick="location.href='report.jsp'">
+                <i class="fas fa-file-alt"></i> Report Generation
+            </button>
 		</div>
 
 		<!-- Main Content -->
@@ -400,72 +460,66 @@ select.form-input {
 			<!-- Main Header -->
 			<div class="main-header">
 				<h1 class="page-title">User Management</h1>
-				<button class="admin-badge"
-					onclick="location.href='adminDashboard.jsp'">
+				<div class="admin-badge">
 					<i class="fas fa-user-shield"></i> Admin Dashboard
-				</button>
+				</div>
 			</div>
-			<!-- In your content-container, add this form before the search container -->
-			<div class="content-container">
-				<div class="content-container">
-					<!-- Admin Actions Form -->
-					<div class="admin-actions-container">
-						<h2 class="section-title">Admin Actions</h2>
+    <div class="content-container">
+        <!-- Add Action Button -->
+        <button class="action-button" onclick="openModal()">
+            <i class="fas fa-user-cog"></i> Manage User Status
+        </button>
 
-						<%-- Display messages --%>
-						<%
-						if (request.getAttribute("successMessage") != null) {
-						%>
-						<div class="alert alert-success">
-							<%=request.getAttribute("successMessage")%>
-						</div>
-						<%
-						}
-						%>
+        <!-- Modal Overlay -->
+        <div id="modalOverlay" class="modal-overlay">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 class="section-title">User Management</h2>
+                    <button class="close-modal" onclick="closeModal()">&times;</button>
+                </div>
 
-						<%
-						if (request.getAttribute("errorMessage") != null) {
-						%>
-						<div class="alert alert-danger">
-							<%=request.getAttribute("errorMessage")%>
-						</div>
-						<%
-						}
-						%>
+                <%-- Display messages --%>
+                <% if(request.getAttribute("successMessage") != null) { %>
+                    <div class="alert alert-success">
+                        <%= request.getAttribute("successMessage") %>
+                    </div>
+                <% } %>
 
-						<form action="AdminServlet" method="POST" class="admin-form">
-							<div class="form-group">
-								<label for="mailID">User Email:</label> <input type="email"
-									id="mailID" name="mailID" class="form-input"
-									placeholder="Enter EmailID " required>
-							</div>
+                <% if(request.getAttribute("errorMessage") != null) { %>
+                    <div class="alert alert-danger">
+                        <%= request.getAttribute("errorMessage") %>
+                    </div>
+                <% } %>
 
-							<div class="form-group">
-								<label for="action">Action:</label> <select id="action"
-									name="action" class="form-input" required>
-									<option value="">Select an action</option>
-									<option value="deactivate">Deactivate User</option>
-									<option value="reactivate">Reactivate User</option>
-								</select>
-							</div>
+                <form action="AdminServlet" method="POST" class="admin-form">
+                    <div class="form-group">
+                        <label for="mailID">User Email:</label>
+                        <input type="email" id="mailID" name="mailID" class="form-input" placeholder="Enter EmailID" required>
+                    </div>
 
-							<button type="submit" class="btn btn-primary">Perform
-								Action</button>
-						</form>
-					</div>
+                    <div class="form-group">
+                        <label for="action">Action:</label>
+                        <select id="action" name="action" class="form-input" required>
+                            <option value="">Select an action</option>
+                            <option value="deactivate">Deactivate User</option>
+                            <option value="reactivate">Reactivate User</option>
+                        </select>
+                    </div>
 
-					<!-- Content Container -->
+                    <button type="submit" class="btn btn-primary">Perform Action</button>
+                </form>
+            </div>
+        </div>
 
-					<!-- Search Box -->
-					<div class="search-container">
-						<div class="search-box">
-							<i class="fas fa-search"></i> <input type="text" id="searchInput"
-								class="search-input" placeholder="Search by name, email..."
-								onkeyup="searchUsers()">
-						</div>
-					</div>
+        <!-- Search Box -->
+        <div class="search-container">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search by name, email..." onkeyup="searchUsers()">
+            </div>
+        </div>
 
-					<!-- User Table -->
+<!-- User Table -->
 					<div class="user-table">
 						<table>
 							<thead>
@@ -475,7 +529,7 @@ select.form-input {
 									<th>Email</th>
 									<th>Role</th>
 									<th>Status</th>
-
+									
 								</tr>
 							</thead>
 							<tbody id="userTableBody">
@@ -502,7 +556,7 @@ select.form-input {
 											<%=isDeactivated ? "Deactivated" : "Active"%>
 										</div>
 									</td>
-
+									
 								</tr>
 								<%
 								}
@@ -516,6 +570,43 @@ select.form-input {
 				</div>
 			</div>
 		</div>
-	</div>
+</div>
+    </div>
+
+    <script>
+    function openModal() {
+        document.getElementById('modalOverlay').style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+    }
+
+    function closeModal() {
+        document.getElementById('modalOverlay').style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scrolling
+    }
+
+    // Close modal if clicking outside of it
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+
+    // Your existing searchUsers function remains the same
+    function searchUsers() {
+        var input = document.getElementById('searchInput');
+        var filter = input.value.toLowerCase();
+        var rows = document.getElementsByClassName('user-row');
+
+        for (var i = 0; i < rows.length; i++) {
+            var name = rows[i].getElementsByTagName('td')[1].textContent.toLowerCase();
+            var email = rows[i].getElementsByTagName('td')[2].textContent.toLowerCase();
+            if (name.indexOf(filter) > -1 || email.indexOf(filter) > -1) {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+    }
+    </script>
 </body>
 </html>

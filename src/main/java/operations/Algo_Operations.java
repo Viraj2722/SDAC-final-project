@@ -3,12 +3,13 @@ package operations;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import db.GetConnection;
+import interfaces.Algo_Operations_Interface;
 
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Algo_Operations {
+public class Algo_Operations implements Algo_Operations_Interface {
     private static final Gson gson = new Gson();
     
     private String executeAnalysis(Connection conn, String analysisType) throws SQLException {

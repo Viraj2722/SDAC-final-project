@@ -6,12 +6,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import db.GetConnection;
-
+import interfaces.Product_Operations_Interface;
 import model.ProductPojo;
 
-public class Product_Operations {
+public class Product_Operations implements Product_Operations_Interface {
 
-	public static ProductPojo getProductById(int productId) {
+	public ProductPojo getProductById(int productId) {
         String query = "SELECT ProductID, Name, Category, SellingPrice, Stock, SupplierInfo " +
                       "FROM products " +
                       "WHERE ProductID = ?";
@@ -39,7 +39,7 @@ public class Product_Operations {
         return null;
     }
 	
-    public static boolean editProduct(ProductPojo product) {
+    public boolean editProduct(ProductPojo product) {
         try {
             String sql = "UPDATE products SET name = ?, category = ?, cost = ?, sellingPrice = ?, stock = ?, salesData = ?, reorderLevel = ?, supplierInfo = ?, expiryDate = ? WHERE productID = ?";
             
@@ -62,7 +62,7 @@ public class Product_Operations {
         }
     }
 
-    public static boolean deleteProduct(int productID) {
+    public boolean deleteProduct(int productID) {
         try {
             String sql = "DELETE FROM products WHERE productID = ?";
             Connection conn = GetConnection.getConnection();
@@ -77,7 +77,7 @@ public class Product_Operations {
     }
 
     
-    public static boolean addProduct(ProductPojo product) {
+    public boolean addProduct(ProductPojo product) {
         try {
             String sql = "INSERT INTO products (name, category, cost, sellingPrice, stock, salesData, reorderLevel, supplierInfo, expiryDate) VALUES (?,?,?,?,?,?,?,?,?)";
             Connection conn = GetConnection.getConnection();
@@ -102,7 +102,7 @@ public class Product_Operations {
 
 
 
-public static boolean updateProductDetails(int productID, double newPrice, int newStock, String newSupplierInfo) {
+public boolean updateProductDetails(int productID, double newPrice, int newStock, String newSupplierInfo) {
     try {
         String sql = "UPDATE products SET sellingPrice = ?, stock = ?, supplierInfo = ? WHERE productID = ?";
         Connection conn = GetConnection.getConnection();

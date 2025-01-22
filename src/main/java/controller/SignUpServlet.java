@@ -12,6 +12,7 @@ import operations.Authentication_Operations;
 @WebServlet("/SignUpServlet")
 public class SignUpServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private final Authentication_Operations authOps = Authentication_Operations.getInstance();
     
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
@@ -20,22 +21,18 @@ public class SignUpServlet extends HttpServlet {
         String name = request.getParameter("name");
         String password = request.getParameter("password");
         
-        // Check if user already exists
-        if (Authentication_Operations.userExists(mailID)) {
+        if (authOps.userExists(mailID)) {
             request.setAttribute("errorMessage", "User already exists! Please login.");
             request.getRequestDispatcher("signup.jsp").forward(request, response);
             return;
         }
         
-        // Create new user
         UserPojo newUser = new UserPojo();
         newUser.setMailID(mailID);
         newUser.setName(name);
         newUser.setPassword(password);
         
-        // Attempt registration
-        if (Authentication_Operations.registerUser(newUser)) {
-            // Redirect to login page with success message
+        if (authOps.registerUser(newUser)) {
             request.setAttribute("successMessage", "Registration successful! Please login.");
             request.getRequestDispatcher("login.jsp").forward(request, response);
         } else {
