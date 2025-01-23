@@ -18,6 +18,51 @@ import db.GetConnection;
 @WebServlet("/AddToCartServlet")
 public class AddToCartServlet extends HttpServlet {
     
+	 @Override
+	    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+	            throws ServletException, IOException {
+	        
+	        HttpSession session = request.getSession();
+	        PrintWriter out = response.getWriter();
+	        Connection conn = null;
+	        
+	        try {
+	            conn = GetConnection.getConnection();
+	            
+	            // Retrieve cart from session
+	            HashMap<Integer, Integer> cart = (HashMap<Integer, Integer>) session.getAttribute("cart");
+	            
+	            if (cart == null || cart.isEmpty()) {
+	                out.print("Cart is empty");
+	                return;
+	            }
+	            
+	            // Build cart data with product details
+	            StringBuilder cartData = new StringBuilder();
+	            for (Map.Entry<Integer, Integer> entry : cart.entrySet()) {
+	                int pid = entry.getKey();
+	                int qty = entry.getValue();
+	                ProductInfo productInfo = getProductInfo(pid, conn);
+	                cartData.append(pid).append(",")
+	                       .append(qty).append(",")
+	                       .append(productInfo.price).append(",")
+	                       .append(productInfo.name).append("\n");
+	            }
+	            
+	            out.print(cartData.toString());
+	            
+	        } catch (Exception e) {
+	            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+	            out.print("Error retrieving cart: " + e.getMessage());
+	        } finally {
+	            try {
+	                if (conn != null) conn.close();
+	            } catch (Exception e) {
+	                e.printStackTrace();
+	            }
+	        }
+	    }
+	
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -133,4 +178,3 @@ public class AddToCartServlet extends HttpServlet {
         return info;
     }
 }
-

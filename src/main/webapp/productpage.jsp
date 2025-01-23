@@ -1,11 +1,24 @@
 <%@ page import="java.sql.*, java.util.*"%>
 <%@ page contentType="text/html; charset=UTF-8" language="java"%>
+<%@ page import="db.GetConnection"%>
+<%
+// Check if user is logged in
+HttpSession userSession = request.getSession(false);
+if (userSession == null || userSession.getAttribute("mailID") == null) {
+	response.sendRedirect("login.jsp");
+	return;
+}
+String userEmail = (String) userSession.getAttribute("mailID");
+%>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Product Details</title>
+<link rel="stylesheet"
+	href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=account_circle" />
 <link
 	href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
 	rel="stylesheet">
@@ -14,43 +27,76 @@
 	rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-.cart-item {
-    transition: background-color 0.2s;
+@import
+	url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap')
+	;
+
+:root {
+	--primary-color: #ffffff;
+	--accent-color: #000000;
+	--bg-gradient: linear-gradient(135deg, #141514 0%, #3f3f3f 100%);
 }
 
-.cart-item:hover {
-    background-color: #f8f9fa;
+body {
+	background: var(--bg-gradient);
+	min-height: 100vh;
+	font-family: 'Lato', serif;
+	font-weight: 400;
+	font-style: normal;
+	color: var(--primary-color);
 }
 
-.cart-notification {
-    animation: fadeInOut 3s ease-in-out;
+/* Product Details Card */
+.bg-white {
+	background: rgba(255, 255, 255, 0.1) !important;
+	backdrop-filter: blur(10px);
+	border: none;
 }
 
-@keyframes fadeInOut {
-    0% { opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { opacity: 0; }
+.text-gray-900 {
+	color: var(--primary-color) !important;
 }
 
-.item-details {
-    flex-grow: 1;
+.text-gray-600, .text-gray-700, .text-gray-500 {
+	color: rgba(255, 255, 255, 0.7) !important;
 }
 
-.item-name {
-    font-weight: 500;
+/* Buttons */
+.btn-custom, .btn-primary, .btn-increment, .btn-decrement {
+	background: var(--accent-color);
+	color: white;
+	border: none;
+	border-radius: 25px;
+	padding: 8px 25px;
+	transition: all 0.3s ease;
+	position: relative;
+	overflow: hidden;
 }
 
-.item-price {
-    font-size: 0.9em;
+.btn-custom:hover, .btn-primary:hover, .btn-increment:hover,
+	.btn-decrement:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+	background: #333;
 }
 
-.cart-total {
-    margin-top: 1rem;
-    border-top: 2px solid #dee2e6;
+/* Input Fields */
+.form-control, textarea {
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	color: var(--primary-color);
 }
+
+.form-control:focus, textarea:focus {
+	background: rgba(255, 255, 255, 0.15);
+	border-color: rgba(255, 255, 255, 0.3);
+	color: var(--primary-color);
+	box-shadow: none;
+}
+
+/* Star Rating */
 .star-rating {
-	color: #cbd5e0;
+	color: rgba(255, 255, 255, 0.3);
 	cursor: pointer;
 }
 
@@ -58,83 +104,89 @@
 	color: #fbbf24;
 }
 
-.error-message {
-	color: #ef4444;
-	margin-top: 0.5rem;
-	font-size: 0.875rem;
+/* Cart Modal */
+.modal-content {
+	background: var(--bg-gradient);
+	border: none;
 }
 
-.navbar-nav {
-	display: flex !important;
-	align-items: center;
+.modal-header, .modal-footer {
+	border-color: rgba(255, 255, 255, 0.1);
 }
 
-@media ( max-width : 991px) {
-	.navbar-collapse {
-		display: none;
-	}
-	.navbar-collapse.show {
-		display: block;
-	}
+.cart-item {
+	background: rgba(255, 255, 255, 0.05);
+	transition: background-color 0.2s;
 }
 
+.cart-item:hover {
+	background: rgba(255, 255, 255, 0.1);
+}
+
+/* Quantity Controls */
+.quantity-input {
+	background: rgba(255, 255, 255, 0.1);
+	color: var(--primary-color);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Success and Error Messages */
 .success-message {
 	color: #10b981;
-	margin-top: 0.5rem;
-	font-size: 0.875rem;
 }
 
-.no-spinner {
-	-moz-appearance: textfield;
+.error-message {
+	color: #ef4444;
 }
 
-.no-spinner::-webkit-inner-spin-button, .no-spinner::-webkit-outer-spin-button
-	{
-	-webkit-appearance: none;
-	margin: 0;
+/* Navbar */
+.navbar {
+	background: rgba(0, 0, 0, 0.1);
+	backdrop-filter: blur(10px);
 }
 
-/* Button Styles */
-.btn-decrement, .btn-increment {
-	background-color: #007bff;
-	border: 1px solid #007bff;
+.navbar-brand {
+	font-weight: 700;
+	color: var(--primary-color) !important;
+	transition: transform 0.3s ease;
+}
+
+.nav-link {
+	color: var(--primary-color) !important;
 	transition: all 0.3s ease;
 }
 
-.btn-decrement:hover, .btn-increment:hover {
-	background-color: #0056b3;
-	border-color: #0056b3;
-	transform: scale(1.1);
-	cursor: pointer;
+.nav-link:hover {
+	transform: translateY(-2px);
 }
 
-.btn-decrement:disabled, .btn-increment:disabled {
-	background-color: #d6d6d6;
-	border-color: #d6d6d6;
-	cursor: not-allowed;
+/* Animations */
+@
+keyframes fadeInUp {from { opacity:0;
+	transform: translateY(20px);
 }
 
-.quantity-input {
-	font-size: 1rem;
-	font-weight: bold;
-	color: #333;
+to {
+	opacity: 1;
+	transform: translateY(0);
 }
 
-.quantity-input:focus {
-	border-color: #007bff;
-	box-shadow: 0 0 3px rgba(0, 123, 255, 0.5);
 }
 
-@media ( max-width : 576px) {
-	.btn-decrement, .btn-increment {
-		padding: 0.5rem;
-	}
-	.quantity-input {
-		width: 50px;
-	}
+/* Card Animations */
+.card {
+	animation: fadeInUp 0.6s ease forwards;
+}
+
+.card:nth-child(2) {
+	animation-delay: 0.2s;
+}
+
+.card:nth-child(3) {
+	animation-delay: 0.4s;
 }
 </style>
-	<script>
+<script>
         // Rating system
         function setRating(rating) {
             document.getElementById('rating-input').value = rating;
@@ -465,108 +517,144 @@ stars.forEach(star => {
         }
     });
 });
+
+if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.location.href);
+}
+
     </script>
 </head>
 <body class="bg-gray-50">
 	<!-- Navigation -->
-	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+	<nav class="navbar navbar-expand-lg navbar-light fixed-top">
 		<div class="container">
-			<a class="navbar-brand" href="home.jsp">ShopHub</a>
+			<!-- Logo with home link -->
+			<a class="navbar-brand" href="homepage.jsp"> ShopHub </a>
+
+			<!-- Toggler for mobile -->
 			<button class="navbar-toggler" type="button"
-				data-bs-toggle="collapse" data-bs-target="#navbarNav"
-				aria-controls="navbarNav" aria-expanded="false"
-				aria-label="Toggle navigation">
+				data-bs-toggle="collapse" data-bs-target="#navbarNav">
 				<span class="navbar-toggler-icon"></span>
 			</button>
 
-			<div class="navbar-collapse" id="navbarNav">
-				<ul class="navbar-nav ms-auto">
-				<li class="nav-item">
-                        <a class="nav-link" href="homepage.jsp">
-                            <i class="fas fa-home"></i> Home
-                        </a>
-                    </li>
-					<li class="nav-item"><a class="nav-link" href="#"><i
-							class="fas fa-user"></i> Account</a></li>
-					<li class="nav-item"><a class="nav-link" href="#"
-						data-bs-toggle="modal" data-bs-target="#cartModal"> <i
-							class="fas fa-shopping-cart"></i> Cart
+			<!-- Navigation items -->
+			<div class="collapse navbar-collapse" id="navbarNav">
+				<ul class="navbar-nav ms-auto align-items-center">
+					<!-- Account Dropdown -->
+					<li class="nav-item dropdown"><a
+						class="nav-link d-flex align-items-center" style="color: white;"
+						href="#" id="navbarDropdown" role="button"
+						data-bs-toggle="dropdown" aria-expanded="false"><svg
+								xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+								viewBox="0 0 24 24">
+								<path fill="currentColor"
+									d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6m0 14c-2.03 0-4.43-.82-6.14-2.88a9.95 9.95 0 0 1 12.28 0C16.43 19.18 14.03 20 12 20" /></svg>
+					</a>
+						<ul class="dropdown-menu dropdown-menu-end" style="color: white;"
+							aria-labelledby="navbarDropdown">
+							<li class="dropdown-item-text" style="color: white;"><span
+								class="fw-bold"><%=userEmail%></span></li>
+							<li><hr class="dropdown-divider"></li>
+							<li><a class="dropdown-item" href="orderhistory.jsp"> <i
+									class="bi bi-clock-history me-2"></i>Order History
+							</a></li>
+							<li><a class="dropdown-item" href="feedbackhistory.jsp">
+									<i class="bi bi-chat-left-text me-2"></i>Feedback
+							</a></li>
+							<li><hr class="dropdown-divider"></li>
+							<li><a class="dropdown-item text-danger" href="#"
+								onclick="logout()"> <i class="bi bi-box-arrow-right me-2"></i>Logout
+							</a></li>
+						</ul></li>
+
+					<!-- Cart -->
+					<li class="nav-item ms-3"><a
+						class="nav-link position-relative" href="#" data-bs-toggle="modal"
+						data-bs-target="#cartModal"> <img
+							src="https://cdn-icons-png.flaticon.com/512/428/428173.png"
+							style="width: 30px; height: 30px" alt="cart icon"> <!--  <span class="position-absolute top-10 start-99 translate-middle badge rounded-pill bg-danger" id="cartCount">
+                    0
+                </span> -->
 					</a></li>
 				</ul>
 			</div>
 		</div>
 	</nav>
-	
-		<!-- Update the cart modal div with this content -->
+
+	<!-- Cart Modal -->
 	<div class="modal fade" id="cartModal" tabindex="-1"
 		aria-labelledby="cartModalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-lg">
-			<div class="modal-content">
-				<div class="modal-header bg-gray-100">
-					<h5 class="modal-title" id="cartModalLabel">
-						<i class="fas fa-shopping-cart me-2"></i>Shopping Cart
+			<div class="modal-content"
+				style="background: rgba(14, 14, 14, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1);">
+				<div class="modal-header border-bottom"
+					style="border-color: rgba(255, 255, 255, 0.1) !important;">
+					<h5 class="modal-title text-white" id="cartModalLabel">
+						<i class="bi bi-cart3 me-2"></i>Shopping Cart
 					</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal"
-						aria-label="Close"></button>
+					<button type="button" class="btn-close btn-close-white"
+						data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body p-0">
 					<div id="cartItems" class="p-4">
 						<!-- Cart items will be dynamically inserted here -->
 					</div>
-					<div class="p-4 bg-gray-50">
+					<div class="p-4"
+						style="background: rgba(255, 255, 255, 0.05); color: white;">
 						<div class="d-flex justify-content-between align-items-center">
-							<span class="text-lg font-semibold">Subtotal:</span> <strong
-								id="cartTotal" class="text-xl text-primary">$0.00</strong>
+							<span class="text-white fs-5">Subtotal:</span> <strong
+								id="cartTotal" class="text-white fs-4">₹0.00</strong>
 						</div>
-						<p class="text-gray-600 text-sm mt-2">Shipping and taxes
+						<p class="text-light opacity-75 mt-2">Shipping and taxes
 							calculated at checkout</p>
 					</div>
 				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-outline-secondary"
+				<div class="modal-footer border-top"
+					style="border-color: rgba(255, 255, 255, 0.1) !important;">
+					<button type="button" class="btn btn-outline-light"
 						data-bs-dismiss="modal">Continue Shopping</button>
-					<button onclick="processCheckout()" class="btn btn-primary">
-						<i class="fas fa-lock me-2"></i>Checkout
+					<button onclick="processCheckout()" class="btn btn-custom">
+						<i class="bi bi-lock me-2"></i>Checkout
 					</button>
 				</div>
+			</div>
+		</div>
+	</div>
 
-				<!-- Add new payment modal -->
-				<div class="modal fade" id="paymentModal" tabindex="-1"
-					aria-labelledby="paymentModalLabel" aria-hidden="true">
-					<div class="modal-dialog modal-dialog-centered">
-						<div class="modal-content">
-							<div class="modal-header bg-gray-100">
-								<h5 class="modal-title" id="paymentModalLabel">
-									<i class="fas fa-credit-card me-2"></i>Select Payment Method
-								</h5>
-								<button type="button" class="btn-close" data-bs-dismiss="modal"
-									aria-label="Close"></button>
-							</div>
-							<div class="modal-body p-4">
-								<div class="space-y-4">
-									<!-- Cash Payment -->
-									<button onclick="processPurchase('Cash')"
-										class="w-full p-4 text-left border rounded-lg hover:bg-gray-50 transition-colors duration-200 flex items-center space-x-3">
-										<i class="fas fa-money-bill-wave text-green-600 text-2xl"></i>
-										<span class="font-medium">Cash Payment</span>
-									</button>
-
-									<!-- Card Payment -->
-									<button onclick="processPurchase('Card')"
-										class="w-full p-4 text-left border rounded-lg hover:bg-gray-50 transition-colors duration-200 flex items-center space-x-3">
-										<i class="fas fa-credit-card text-blue-600 text-2xl"></i> <span
-											class="font-medium">Card Payment</span>
-									</button>
-
-									<!-- UPI Payment -->
-									<button onclick="processPurchase('UPI')"
-										class="w-full p-4 text-left border rounded-lg hover:bg-gray-50 transition-colors duration-200 flex items-center space-x-3">
-										<i class="fas fa-mobile-alt text-purple-600 text-2xl"></i> <span
-											class="font-medium">UPI Payment</span>
-									</button>
-								</div>
-							</div>
-						</div>
+	<!-- Payment Modal -->
+	<div class="modal fade" id="paymentModal" tabindex="-1"
+		aria-labelledby="paymentModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content"
+				style="background: rgba(14, 14, 14, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1);">
+				<div class="modal-header border-bottom"
+					style="border-color: rgba(255, 255, 255, 0.1) !important;">
+					<h5 class="modal-title text-white" id="paymentModalLabel">
+						<i class="bi bi-credit-card me-2"></i>Select Payment Method
+					</h5>
+					<button type="button" class="btn-close btn-close-white"
+						data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body p-4">
+					<div class="d-grid gap-3">
+						<!-- Cash Payment -->
+						<button onclick="processPurchase('Cash')"
+							class="btn btn-outline-light text-start p-3 d-flex align-items-center">
+							<i class="bi bi-cash me-3 fs-4"></i> <span class="fs-5">Cash
+								Payment</span>
+						</button>
+						<!-- Card Payment -->
+						<button onclick="processPurchase('Card')"
+							class="btn btn-outline-light text-start p-3 d-flex align-items-center">
+							<i class="bi bi-credit-card me-3 fs-4"></i> <span class="fs-5">Card
+								Payment</span>
+						</button>
+						<!-- UPI Payment -->
+						<button onclick="processPurchase('UPI')"
+							class="btn btn-outline-light text-start p-3 d-flex align-items-center">
+							<i class="bi bi-phone me-3 fs-4"></i> <span class="fs-5">UPI
+								Payment</span>
+						</button>
 					</div>
 				</div>
 			</div>
@@ -575,14 +663,9 @@ stars.forEach(star => {
 
 	<div class="container mx-auto px-4 py-8 max-w-4xl">
 		<%
-		// Database connection setup
 		Connection conn = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
-		String dbUrl = "jdbc:mysql://localhost:3306/erp_system";
-		String dbUser = "root";
-		String dbPass = "1234";
-
 		String errorMessage = "";
 		String successMessage = "";
 		int currentProductId = 0;
@@ -591,8 +674,7 @@ stars.forEach(star => {
 		String productId = request.getParameter("productId");
 
 		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-			conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+			conn = GetConnection.getConnection();
 
 			if (productId != null && !productId.trim().isEmpty()) {
 				// Product info section
@@ -605,7 +687,7 @@ stars.forEach(star => {
 			currentProductId = rs.getInt("ProductID");
 		%>
 		<!-- Product Details Card -->
-		<div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+		<div class="bg-white rounded-lg shadow-lg p-6 mt-10 mb-8">
 			<h1 class="text-3xl font-bold text-gray-900 mb-4">
 				<%=rs.getString("Name")%>
 			</h1>
@@ -644,258 +726,245 @@ stars.forEach(star => {
 
 			<!-- Quantity Controls and Add to Cart -->
 			<!-- Quantity Controls -->
-<div class="mt-6">
-    <div class="d-flex align-items-center justify-content-center mb-3">
-        <div class="input-group w-[15vw] align-items-center">
-            <button class="btn btn-sm btn-decrement text-white py-2 px-3"
-                    type="button"
-                    onclick="updateQuantity(<%=currentProductId%>, -1)"
-                    <%= rs.getInt("Stock") > 0 ? "" : "disabled" %>>
-                &#8722;
-            </button>
+			<div class="mt-6">
+				<div class="d-flex align-items-center justify-content-center mb-3">
+					<div class="input-group w-[15vw] align-items-center">
+						<button class="btn btn-sm btn-decrement text-white py-2 px-3"
+							type="button" onclick="updateQuantity(<%=currentProductId%>, -1)"
+							<%=rs.getInt("Stock") > 0 ? "" : "disabled"%>>&#8722;</button>
 
-            <input type="number"
-                   class="form-control text-center no-spinner quantity-input"
-                   style="width: 70px;"
-                   id="quantity-<%=currentProductId%>"
-                   name="quantity"
-                   value="1"
-                   min="1"
-                   max="<%= rs.getInt("Stock") %>"
-                   <%= rs.getInt("Stock") > 0 ? "" : "disabled" %>
-                   readonly>
+						<input type="number"
+							class="form-control text-center no-spinner quantity-input"
+							style="width: 70px;" id="quantity-<%=currentProductId%>"
+							name="quantity" value="1" min="1" max="<%=rs.getInt("Stock")%>"
+							<%=rs.getInt("Stock") > 0 ? "" : "disabled"%> readonly>
 
-            <button class="btn btn-sm btn-increment text-white py-2 px-3"
-                    type="button"
-                    onclick="updateQuantity(<%=currentProductId%>, 1)"
-                    <%= rs.getInt("Stock") > 0 ? "" : "disabled" %>>
-                &#43;
-            </button>
-        </div>
-    </div>
+						<button class="btn btn-sm btn-increment text-white py-2 px-3"
+							type="button" onclick="updateQuantity(<%=currentProductId%>, 1)"
+							<%=rs.getInt("Stock") > 0 ? "" : "disabled"%>>&#43;</button>
+					</div>
+				</div>
 
-    <button
+				<button
 					class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-200 add-to-cart-btn"
-					<%= rs.getInt("Stock") > 0 ? "" : "disabled" %>
-					data-product-id="<%= rs.getInt("ProductID") %>"
-					data-product-name="<%= rs.getString("Name") %>"
-					data-product-price="<%= rs.getDouble("SellingPrice") %>">
+					<%=rs.getInt("Stock") > 0 ? "" : "disabled"%>
+					data-product-id="<%=rs.getInt("ProductID")%>"
+					data-product-name="<%=rs.getString("Name")%>"
+					data-product-price="<%=rs.getDouble("SellingPrice")%>">
 					Add to Cart</button>
-</div>
-	
+			</div>
 
 
-	<%
-	// Handle feedback submission
-	if ("POST".equalsIgnoreCase(request.getMethod())) {
-		String comments = request.getParameter("comments");
-		String ratingStr = request.getParameter("rating");
-		String userEmail = (String) session.getAttribute("mailID");
 
-		if (comments != null && ratingStr != null) {
-			if (userEmail == null) {
-		errorMessage = "Please login to submit a review.";
-			} else if (comments.trim().isEmpty()) {
-		errorMessage = "Feedback comments cannot be empty.";
-			} else if (ratingStr.trim().isEmpty()) {
-		errorMessage = "Rating is required.";
-			} else {
-		try {
-			int rating = Integer.parseInt(ratingStr);
-			if (rating < 1 || rating > 5) {
-				errorMessage = "Rating must be between 1 and 5.";
-			} else {
-				// Get CustomerID using email
-				String customerQuery = "SELECT CustomerID FROM customers WHERE Email = ?";
-				PreparedStatement customerPs = conn.prepareStatement(customerQuery);
-				customerPs.setString(1, userEmail);
-				ResultSet customerRs = customerPs.executeQuery();
+			<%
+			// Handle feedback submission
+			if ("POST".equalsIgnoreCase(request.getMethod())) {
+				String comments = request.getParameter("comments");
+				String ratingStr = request.getParameter("rating");
 
-				if (customerRs.next()) {
-					int customerId = customerRs.getInt("CustomerID");
-					customerRs.close();
-					customerPs.close();
-
-					// Insert feedback
-					String insertFeedbackQuery = "INSERT INTO feedback (ProductID, CustomerID, Comments, Rating, FeedbackDate) "
-							+ "VALUES (?, ?, ?, ?, NOW())";
-					PreparedStatement feedbackPs = conn.prepareStatement(insertFeedbackQuery);
-					feedbackPs.setInt(1, currentProductId);
-					feedbackPs.setInt(2, customerId);
-					feedbackPs.setString(3, comments.trim());
-					feedbackPs.setInt(4, rating);
-
-					int result = feedbackPs.executeUpdate();
-					feedbackPs.close();
-
-					if (result > 0) {
-						successMessage = "Thank you for your feedback!";
+				if (comments != null && ratingStr != null) {
+					if (userEmail == null) {
+				errorMessage = "Please login to submit a review.";
+					} else if (comments.trim().isEmpty()) {
+				errorMessage = "Feedback comments cannot be empty.";
+					} else if (ratingStr.trim().isEmpty()) {
+				errorMessage = "Rating is required.";
 					} else {
-						errorMessage = "Failed to submit feedback.";
+				try {
+					int rating = Integer.parseInt(ratingStr);
+					if (rating < 1 || rating > 5) {
+						errorMessage = "Rating must be between 1 and 5.";
+					} else {
+						// Get CustomerID using email
+						String customerQuery = "SELECT CustomerID FROM customers WHERE Email = ?";
+						PreparedStatement customerPs = conn.prepareStatement(customerQuery);
+						customerPs.setString(1, userEmail);
+						ResultSet customerRs = customerPs.executeQuery();
+
+						if (customerRs.next()) {
+							int customerId = customerRs.getInt("CustomerID");
+							customerRs.close();
+							customerPs.close();
+
+							// Insert feedback
+							String insertFeedbackQuery = "INSERT INTO feedback (ProductID, CustomerID, Comments, Rating, FeedbackDate) "
+									+ "VALUES (?, ?, ?, ?, NOW())";
+							PreparedStatement feedbackPs = conn.prepareStatement(insertFeedbackQuery);
+							feedbackPs.setInt(1, currentProductId);
+							feedbackPs.setInt(2, customerId);
+							feedbackPs.setString(3, comments.trim());
+							feedbackPs.setInt(4, rating);
+
+							int result = feedbackPs.executeUpdate();
+							feedbackPs.close();
+
+							if (result > 0) {
+								successMessage = "Thank you for your feedback!";
+							} else {
+								errorMessage = "Failed to submit feedback.";
+							}
+						} else {
+							errorMessage = "Customer information not found.";
+						}
 					}
-				} else {
-					errorMessage = "Customer information not found.";
+				} catch (NumberFormatException e) {
+					errorMessage = "Invalid rating format.";
+				}
+					}
 				}
 			}
-		} catch (NumberFormatException e) {
-			errorMessage = "Invalid rating format.";
-		}
+
+			// Display feedback section
+			%>
+			<br>
+			<div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+				<h2 class="text-2xl font-bold text-gray-900 mb-6">Customer
+					Reviews</h2>
+				<%
+				String feedbackQuery = "SELECT f.*, c.Name " + "FROM feedback f " + "JOIN customers c ON f.CustomerID = c.CustomerID "
+						+ "WHERE f.ProductID = ? " + "ORDER BY f.FeedbackDate DESC";
+				PreparedStatement feedbackPs = conn.prepareStatement(feedbackQuery);
+				feedbackPs.setInt(1, currentProductId);
+				ResultSet feedbackRs = feedbackPs.executeQuery();
+
+				boolean hasFeedback = false;
+
+				while (feedbackRs.next()) {
+					hasFeedback = true;
+					int rating = feedbackRs.getInt("Rating");
+					String feedbackComments = feedbackRs.getString("Comments");
+					Timestamp feedbackDate = feedbackRs.getTimestamp("FeedbackDate");
+					String customerName = feedbackRs.getString("Name");
+				%>
+				<div
+					class="border-b border-gray-200 pb-6 mb-6 last:border-0 last:pb-0 last:mb-0">
+					<div class="flex justify-between items-center">
+						<h3 class="text-lg font-medium text-gray-900">
+							<%=customerName%>
+						</h3>
+						<div class="flex items-center space-x-1">
+							<%
+							for (int i = 1; i <= 5; i++) {
+							%>
+							<span class="star-rating <%=i <= rating ? "selected" : ""%>">
+								&#9733; </span>
+							<%
+							}
+							%>
+						</div>
+					</div>
+					<p class="text-gray-700 mt-2"><%=feedbackComments%></p>
+					<p class="text-gray-500 text-sm mt-2"><%=feedbackDate%></p>
+				</div>
+				<%
+				}
+				feedbackRs.close();
+				feedbackPs.close();
+
+				if (!hasFeedback) {
+				%>
+				<div class="text-center py-8 text-gray-500">
+					<p>No reviews yet. Be the first to review this product!</p>
+				</div>
+				<%
+				}
+				%>
+			</div>
+
+			<!-- Feedback Form -->
+			<div class="bg-white rounded-lg shadow-lg p-6">
+				<%
+				if (userEmail == null) {
+				%>
+				<div class="text-center py-4">
+					<p class="text-gray-600">
+						Please <a href="login.jsp" class="text-blue-600 hover:underline">login</a>
+						to submit a review.
+					</p>
+				</div>
+				<%
+				} else {
+				%>
+				<%
+				if (!errorMessage.isEmpty()) {
+				%>
+				<div class="error-message"><%=errorMessage%></div>
+				<%
+				}
+				if (!successMessage.isEmpty()) {
+				%>
+				<div class="success-message"><%=successMessage%></div>
+				<%
+				}
+				%>
+				<h2 class="text-2xl font-bold text-gray-900 mb-6">Write a
+					Review</h2>
+				<form method="POST"
+					action="productpage.jsp?productId=<%=currentProductId%>"
+					class="space-y-4">
+					<div>
+						<label class="block text-gray-700 mb-2">Rating</label>
+						<div class="flex space-x-1" id="rating-stars">
+							<%
+							for (int i = 1; i <= 5; i++) {
+							%>
+							<span class="star-rating" data-rating="<%=i%>"
+								onclick="setRating(<%=i%>)"> &#9733; </span>
+							<%
+							}
+							%>
+						</div>
+						<input type="hidden" name="rating" id="rating-input" value="">
+					</div>
+
+					<div>
+						<label for="comments" class="block text-gray-700 mb-2">Comments</label>
+						<textarea id="comments" name="comments" rows="4"
+							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+							required></textarea>
+					</div>
+
+					<button type="submit"
+						class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-200">
+						Submit Review</button>
+				</form>
+				<%
+				}
+				%>
+			</div>
+			<%
+			} else {
+			response.sendRedirect("home.jsp");
+			return;
 			}
-		}
-	}
-
-	// Display feedback section
-	%>
-	<br>
-	<div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-		<h2 class="text-2xl font-bold text-gray-900 mb-6">Customer
-			Reviews</h2>
-		<%
-		String feedbackQuery = "SELECT f.*, c.Name " + "FROM feedback f " + "JOIN customers c ON f.CustomerID = c.CustomerID "
-				+ "WHERE f.ProductID = ? " + "ORDER BY f.FeedbackDate DESC";
-		PreparedStatement feedbackPs = conn.prepareStatement(feedbackQuery);
-		feedbackPs.setInt(1, currentProductId);
-		ResultSet feedbackRs = feedbackPs.executeQuery();
-
-		boolean hasFeedback = false;
-
-		while (feedbackRs.next()) {
-			hasFeedback = true;
-			int rating = feedbackRs.getInt("Rating");
-			String feedbackComments = feedbackRs.getString("Comments");
-			Timestamp feedbackDate = feedbackRs.getTimestamp("FeedbackDate");
-			String customerName = feedbackRs.getString("Name");
-		%>
-		<div
-			class="border-b border-gray-200 pb-6 mb-6 last:border-0 last:pb-0 last:mb-0">
-			<div class="flex justify-between items-center">
-				<h3 class="text-lg font-medium text-gray-900">
-					<%=customerName%>
-				</h3>
-				<div class="flex items-center space-x-1">
-					<%
-					for (int i = 1; i <= 5; i++) {
-					%>
-					<span class="star-rating <%=i <= rating ? "selected" : ""%>">
-						&#9733; </span>
-					<%
-					}
-					%>
-				</div>
-			</div>
-			<p class="text-gray-700 mt-2"><%=feedbackComments%></p>
-			<p class="text-gray-500 text-sm mt-2"><%=feedbackDate%></p>
-		</div>
-		<%
-		}
-		feedbackRs.close();
-		feedbackPs.close();
-
-		if (!hasFeedback) {
-		%>
-		<div class="text-center py-8 text-gray-500">
-			<p>No reviews yet. Be the first to review this product!</p>
-		</div>
-		<%
-		}
-		%>
-	</div>
-
-	<!-- Feedback Form -->
-	<div class="bg-white rounded-lg shadow-lg p-6">
-		<%
-		String userEmail = (String) session.getAttribute("mailID");
-		if (userEmail == null) {
-		%>
-		<div class="text-center py-4">
-			<p class="text-gray-600">
-				Please <a href="login.jsp" class="text-blue-600 hover:underline">login</a>
-				to submit a review.
-			</p>
-		</div>
-		<%
-		} else {
-		%>
-		<%
-		if (!errorMessage.isEmpty()) {
-		%>
-		<div class="error-message"><%=errorMessage%></div>
-		<%
-		}
-		if (!successMessage.isEmpty()) {
-		%>
-		<div class="success-message"><%=successMessage%></div>
-		<%
-		}
-		%>
-		<h2 class="text-2xl font-bold text-gray-900 mb-6">Write a Review</h2>
-		<form method="POST"
-			action="productpage.jsp?productId=<%=currentProductId%>"
-			class="space-y-4">
-			<div>
-				<label class="block text-gray-700 mb-2">Rating</label>
-				<div class="flex space-x-1" id="rating-stars">
-					<%
-					for (int i = 1; i <= 5; i++) {
-					%>
-					<span class="star-rating" data-rating="<%=i%>"
-						onclick="setRating(<%=i%>)"> &#9733; </span>
-					<%
-					}
-					%>
-				</div>
-				<input type="hidden" name="rating" id="rating-input" value="">
-			</div>
-
-			<div>
-				<label for="comments" class="block text-gray-700 mb-2">Comments</label>
-				<textarea id="comments" name="comments" rows="4"
-					class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-					required></textarea>
-			</div>
-
-			<button type="submit"
-				class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-200">
-				Submit Review</button>
-		</form>
-		<%
-		}
-		%>
-	</div>
-	<%
-	} else {
-	response.sendRedirect("homepage.jsp");
-	return;
-	}
-	} else {
-	response.sendRedirect("homepage.jsp");
-	return;
-	}
-	} catch (Exception e) {
-	e.printStackTrace();
-	errorMessage = "An error occurred while processing your request.";
-	} finally {
-	if (rs != null)
-	try {
-	rs.close();
-	} catch (SQLException e) {
-	}
-	if (ps != null)
-	try {
-	ps.close();
-	} catch (SQLException e) {
-	}
-	if (conn != null)
-	try {
-	conn.close();
-	} catch (SQLException e) {
-	}
-	}
-	%>
+			} else {
+			response.sendRedirect("home.jsp");
+			return;
+			}
+			} catch (Exception e) {
+			e.printStackTrace();
+			errorMessage = "An error occurred while processing your request.";
+			} finally {
+			if (rs != null)
+			try {
+			rs.close();
+			} catch (SQLException e) {
+			}
+			if (ps != null)
+			try {
+			ps.close();
+			} catch (SQLException e) {
+			}
+			if (conn != null)
+			try {
+			conn.close();
+			} catch (SQLException e) {
+			}
+			}
+			%>
 
 
-	<script
-		src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-
+			<script
+				src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

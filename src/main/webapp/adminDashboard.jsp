@@ -335,7 +335,7 @@ body {
 		<!-- Sidebar -->
 		<div class="sidebar">
 			<div class="sidebar-header">
-				<a class="sidebar-logo" href='adminPanel.jsp'> <i
+				<a class="sidebar-logo"> <i
 					class="fas fa-shield-alt"></i> Admin Panel
 				</a>
 			</div>

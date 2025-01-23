@@ -111,6 +111,7 @@ body {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.5rem;
+	cursor:pointer;
 }
 
 /* Algorithm Cards */
@@ -278,14 +279,14 @@ to {
 				onclick="location.href='DashboardServlet'">
 				<i class="fas fa-chart-pie"></i> Dashboard
 			</button>
-			<button class="sidebar-btn" onclick="location.href='adminPanel.jsp'">
+			<button class="sidebar-btn" onclick="location.href='usermanagement.jsp'">
 				<i class="fas fa-users"></i> User Management
 			</button>
 			<button class="sidebar-btn"
 				onclick="location.href='feedbackmanagement.jsp'">
 				<i class="fas fa-comments"></i> Feedback Management
 			</button>
-			<button class="sidebar-btn" onclick="location.href='productmanagement.jsp">
+			<button class="sidebar-btn" onclick="location.href='productmanagement.jsp'">
 				<i class="fas fa-box-open"></i> Product Management
 			</button>
 			<button class="sidebar-btn active"
@@ -303,9 +304,9 @@ to {
 			<!-- Main Header -->
 			<div class="main-header">
 				<h1 class="page-title">Algorithm Monitoring Dashboard</h1>
-				<div class="admin-badge">
-					<i class="fas fa-user-shield"></i> Admin Portal
-				</div>
+				<button class="admin-badge" onclick="location.href='DashboardServlet'">
+					<i class="fas fa-user-shield"></i> Admin Dashboard
+				</button>
 			</div>
 
 			<!-- Algorithm Grid -->

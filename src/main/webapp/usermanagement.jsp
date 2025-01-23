@@ -2,6 +2,15 @@
     pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*"%>
 <%@ page import="db.GetConnection"%>
+<%
+    // Check if user is logged in and is admin
+    HttpSession userSession = request.getSession(false);
+    if(userSession == null || userSession.getAttribute("role") == null || 
+       !userSession.getAttribute("role").toString().equalsIgnoreCase("admin")) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -121,6 +130,7 @@ body {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.5rem;
+	cursor:pointer;
 }
 
 /* Content Container */
@@ -441,16 +451,16 @@ select.form-input {
 			<button class="sidebar-btn active">
 				<i class="fas fa-users"></i> User Management
 			</button>
-			<button class="sidebar-btn" onclick="location.href='feedback.jsp'">
+			<button class="sidebar-btn" onclick="location.href='feedbackmanagement.jsp'">
 				<i class="fas fa-comments"></i> Feedback Management
 			</button>
-			<button class="sidebar-btn" onclick="location.href='product.jsp'">
+			<button class="sidebar-btn" onclick="location.href='productmanagement.jsp'">
 				<i class="fas fa-box"></i> Product Management
 			</button>
-			<button class="sidebar-btn" onclick="location.href='algorithm.jsp'">
+			<button class="sidebar-btn" onclick="location.href='algomonitoring.jsp'">
                 <i class="fas fa-chart-line"></i> Algorithm Monitoring
             </button>
-            <button class="sidebar-btn" onclick="location.href='report.jsp'">
+            <button class="sidebar-btn" onclick="location.href='ReportServlet'">
                 <i class="fas fa-file-alt"></i> Report Generation
             </button>
 		</div>
@@ -460,9 +470,9 @@ select.form-input {
 			<!-- Main Header -->
 			<div class="main-header">
 				<h1 class="page-title">User Management</h1>
-				<div class="admin-badge">
+				<button class="admin-badge" onclick="location.href='DashboardServlet'">
 					<i class="fas fa-user-shield"></i> Admin Dashboard
-				</div>
+				</button>
 			</div>
     <div class="content-container">
         <!-- Add Action Button -->

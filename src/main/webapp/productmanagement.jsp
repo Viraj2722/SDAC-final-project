@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%@ page import="db.GetConnection"%>
 <%@ page import="java.sql.*"%>
 <!DOCTYPE html>
 <html>
@@ -178,8 +179,8 @@ h2 {
 		<a href="adminPanel.jsp"><h3 style="text-align: center;">Admin
 				Panel</h3></a> <a href="usermanagement.jsp">User Management</a> <a
 			href="feedbackmanagement.jsp">Feedback Management</a> <a
-			href="productmanagement.jsp" class="active">Product Management</a> 
-			<a class="sidebar-btn" onclick="location.href='algomonitoring.jsp'">
+			href="productmanagement.jsp" class="active">Product Management</a> <a
+			class="sidebar-btn" onclick="location.href='algomonitoring.jsp'">
 			<i class="fas fa-chart-line"></i> Algorithm Monitoring
 		</a> <a class="sidebar-btn" onclick="location.href='ReportServlet'"> <i
 			class="fas fa-file-download"></i> Report Generation
@@ -314,14 +315,12 @@ h2 {
 				</thead>
 				<tbody>
 					<%
-					// Connect to the database
 					Connection conn = null;
 					Statement stmt = null;
 					ResultSet rs = null;
 
 					try {
-						Class.forName("com.mysql.cj.jdbc.Driver");
-						conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/erp_system", "root", "1234");
+						conn = GetConnection.getConnection();
 						stmt = conn.createStatement();
 						String sql = "SELECT * FROM products";
 						rs = stmt.executeQuery(sql);

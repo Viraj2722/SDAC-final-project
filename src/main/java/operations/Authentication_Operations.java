@@ -7,7 +7,7 @@ import model.UserPojo;
 import db.GetConnection;
 import interfaces.Authentication_Operations_Interface;
 
-public class Authentication_Operations implements Authentication_Operations_Interface {
+public class Authentication_Operations<Struct, JSONObject> implements Authentication_Operations_Interface {
 
 	private static final String ADMIN_EMAIL = "admin@example.com";
 	private static final String ADMIN_PASSWORD = "adminPass";
@@ -148,4 +148,6 @@ public class Authentication_Operations implements Authentication_Operations_Inte
 			return false;
 		}
 	}
+	
 }
+

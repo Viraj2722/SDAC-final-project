@@ -28,7 +28,7 @@ public class LoginServlet extends HttpServlet {
 			session.setAttribute("mailID", mailID);
 			session.setAttribute("role", role);
 
-			response.sendRedirect(role.equalsIgnoreCase("admin") ? "adminPanel.jsp" : "homepage.jsp");
+			response.sendRedirect(role.equalsIgnoreCase("admin") ? "usermanagement.jsp" : "homepage.jsp");
 		} else {
 			request.setAttribute("errorMessage", "Invalid credentials or role!");
 			request.getRequestDispatcher("login.jsp").forward(request, response);

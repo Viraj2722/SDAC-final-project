@@ -347,7 +347,7 @@ tr:hover {
 		<!-- Sidebar -->
 		<div class="sidebar">
 			<div class="sidebar-header">
-				<a href="adminPanel.jsp"class="sidebar-logo">
+				<a class="sidebar-logo">
 					<i class="fas fa-shield-alt"></i> Admin Panel
 				</a>
 			</div>
@@ -372,7 +372,7 @@ tr:hover {
 			<!-- Main Header -->
 			<div class="main-header">
 				<h1 class="page-title">Feedback Management</h1>
-				<button class="admin-badge" onclick="location.href='adminDashboard.jsp'">
+				<button class="admin-badge" onclick="location.href='DashboardServlet'">
 					<i class="fas fa-user-shield"></i> Admin Dashboard
 				</button>
 			</div>
