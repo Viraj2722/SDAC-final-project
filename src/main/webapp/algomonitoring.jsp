@@ -53,6 +53,20 @@ body {
 	gap: 0.5rem;
 }
 
+.header-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.8rem;
+}
+
+.btn-logout {
+	background-color: #e74c3c;
+}
+
+.btn-logout:hover {
+	background-color: #c0392b;
+}
+
 .sidebar-btn {
 	display: flex;
 	align-items: center;
@@ -111,7 +125,7 @@ body {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.5rem;
-	cursor:pointer;
+	cursor: pointer;
 }
 
 /* Algorithm Cards */
@@ -279,14 +293,16 @@ to {
 				onclick="location.href='DashboardServlet'">
 				<i class="fas fa-chart-pie"></i> Dashboard
 			</button>
-			<button class="sidebar-btn" onclick="location.href='usermanagement.jsp'">
+			<button class="sidebar-btn"
+				onclick="location.href='usermanagement.jsp'">
 				<i class="fas fa-users"></i> User Management
 			</button>
 			<button class="sidebar-btn"
 				onclick="location.href='feedbackmanagement.jsp'">
 				<i class="fas fa-comments"></i> Feedback Management
 			</button>
-			<button class="sidebar-btn" onclick="location.href='productmanagement.jsp'">
+			<button class="sidebar-btn"
+				onclick="location.href='productmanagement.jsp'">
 				<i class="fas fa-box-open"></i> Product Management
 			</button>
 			<button class="sidebar-btn active"
@@ -304,8 +320,9 @@ to {
 			<!-- Main Header -->
 			<div class="main-header">
 				<h1 class="page-title">Algorithm Monitoring Dashboard</h1>
-				<button class="admin-badge" onclick="location.href='DashboardServlet'">
-					<i class="fas fa-user-shield"></i> Admin Dashboard
+				<button class="admin-badge btn-logout"
+					onclick="location.href='LogoutServlet'">
+					<i class="fas fa-sign-out-alt"></i> Logout
 				</button>
 			</div>
 
@@ -352,7 +369,7 @@ to {
 					</div>
 					<div id="sales-result" class="result-container"></div>
 					<div id="sales-table" class="table-container">
-					<table class="table-view">
+						<table class="table-view">
 							<thead>
 								<tr></tr>
 							</thead>
@@ -378,7 +395,7 @@ to {
 					</div>
 					<div id="inventory-result" class="result-container"></div>
 					<div id="inventory-table" class="table-container">
-					<table class="table-view">
+						<table class="table-view">
 							<thead>
 								<tr></tr>
 							</thead>
@@ -404,13 +421,14 @@ to {
 					</div>
 					<div id="demand-result" class="result-container"></div>
 					<div id="demand-table" class="table-container">
-					
-					<table class="table-view">
+
+						<table class="table-view">
 							<thead>
 								<tr></tr>
 							</thead>
 							<tbody></tbody>
-						</table></div>
+						</table>
+					</div>
 					<button class="toggle-btn" onclick="toggleView('demand')">Toggle
 						Table View</button>
 				</div>
@@ -430,7 +448,7 @@ to {
 					</div>
 					<div id="profit-result" class="result-container"></div>
 					<div id="profit-table" class="table-container">
-					<table class="table-view">
+						<table class="table-view">
 							<thead>
 								<tr></tr>
 							</thead>

@@ -324,6 +324,20 @@ tr:hover {
 	opacity: 1;
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.btn-logout {
+    background-color: #e74c3c;
+}
+
+.btn-logout:hover {
+    background-color: #c0392b;
+}
+
 @media ( max-width : 768px) {
 	.sidebar {
 		width: 0;
@@ -348,6 +362,10 @@ tr:hover {
 				</a>
 			</div>
 			<button class="sidebar-btn"
+				onclick="location.href='DashboardServlet'">
+				<i class="fas fa-chart-pie"></i> Dashboard
+			</button>
+			<button class="sidebar-btn"
 				onclick="location.href='usermanagement.jsp'">
 				<i class="fas fa-users"></i> User Management
 			</button>
@@ -370,10 +388,10 @@ tr:hover {
 			<!-- Main Header -->
 			<div class="main-header">
 				<h1 class="page-title">Product Management</h1>
-				<button class="admin-badge"
-					onclick="location.href='DashboardServlet'">
-					<i class="fas fa-user-shield"></i> Admin Dashboard
-				</button>
+				<button class="admin-badge btn-logout"
+						onclick="location.href='LogoutServlet'">
+						<i class="fas fa-sign-out-alt"></i> Logout
+					</button>
 			</div>
 
 			<!-- Content Container -->
@@ -506,6 +524,7 @@ tr:hover {
 								<th>Stock</th>
 								<th>Sales Data</th>
 								<th>Reorder Level</th>
+								<th>Supplier Info</th>
 								<th>Actions</th>
 							</tr>
 						</thead>
@@ -540,6 +559,7 @@ tr:hover {
 								<td><%=stock%></td>
 								<td><%=salesData%></td>
 								<td><%=reorderLevel%></td>
+								<td><%=supplierInfo%></td>
 								<td>
 									<button class="btn btn-update"
 										onclick="showUpdateForm(<%=productId%>, '<%=name%>', '<%=category%>', <%=cost%>, <%=sellingPrice%>, <%=stock%>, <%=reorderLevel%>, '<%=supplierInfo%>', '<%=expiryDate != null ? expiryDate.toString() : ""%>')">

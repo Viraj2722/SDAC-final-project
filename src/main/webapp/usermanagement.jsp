@@ -1,22 +1,24 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+	pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*"%>
 <%@ page import="db.GetConnection"%>
 <%
-    // Check if user is logged in and is admin
-    HttpSession userSession = request.getSession(false);
-    if(userSession == null || userSession.getAttribute("role") == null || 
-       !userSession.getAttribute("role").toString().equalsIgnoreCase("admin")) {
-        response.sendRedirect("login.jsp");
-        return;
-    }
+// Check if user is logged in and is admin
+HttpSession userSession = request.getSession(false);
+if (userSession == null || userSession.getAttribute("role") == null
+		|| !userSession.getAttribute("role").toString().equalsIgnoreCase("admin")) {
+	response.sendRedirect("login.jsp");
+	return;
+}
 %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>User Management</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+	rel="stylesheet">
 <style>
 * {
 	margin: 0;
@@ -130,7 +132,7 @@ body {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.5rem;
-	cursor:pointer;
+	cursor: pointer;
 }
 
 /* Content Container */
@@ -306,6 +308,20 @@ select.form-input {
 	padding-right: 2.5rem;
 }
 
+.header-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.8rem;
+}
+
+.btn-logout {
+	background-color: #e74c3c;
+}
+
+.btn-logout:hover {
+	background-color: #c0392b;
+}
+
 .btn-primary {
 	background-color: #4834d4;
 	color: white;
@@ -374,73 +390,72 @@ select.form-input {
 }
 /* Modal Styles */
 .modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 1000;
 }
 
 .modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-    width: 90%;
-    z-index: 1001;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background-color: white;
+	padding: 2rem;
+	border-radius: 10px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	max-width: 500px;
+	width: 90%;
+	z-index: 1001;
 }
 
 .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1.5rem;
 }
 
 .close-modal {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #666;
+	background: none;
+	border: none;
+	font-size: 1.5rem;
+	cursor: pointer;
+	color: #666;
 }
 
 .close-modal:hover {
-    color: #333;
+	color: #333;
 }
 
 .action-button {
-    background-color: #4834d4;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    transition: all 0.3s ease;
+	background-color: #4834d4;
+	color: white;
+	padding: 0.75rem 1.5rem;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	font-weight: 500;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+	transition: all 0.3s ease;
 }
 
 .action-button:hover {
-    background-color: #3a2ab3;
-    transform: translateY(-2px);
+	background-color: #3a2ab3;
+	transform: translateY(-2px);
 }
-
 </style>
 </head>
 <body>
-<div class="layout-container">
+	<div class="layout-container">
 		<!-- Sidebar -->
 		<div class="sidebar">
 			<div class="sidebar-header">
@@ -451,172 +466,197 @@ select.form-input {
 			<button class="sidebar-btn active">
 				<i class="fas fa-users"></i> User Management
 			</button>
-			<button class="sidebar-btn" onclick="location.href='feedbackmanagement.jsp'">
+			<button class="sidebar-btn"
+				onclick="location.href='feedbackmanagement.jsp'">
 				<i class="fas fa-comments"></i> Feedback Management
 			</button>
-			<button class="sidebar-btn" onclick="location.href='productmanagement.jsp'">
+			<button class="sidebar-btn"
+				onclick="location.href='productmanagement.jsp'">
 				<i class="fas fa-box"></i> Product Management
 			</button>
-			<button class="sidebar-btn" onclick="location.href='algomonitoring.jsp'">
-                <i class="fas fa-chart-line"></i> Algorithm Monitoring
-            </button>
-            <button class="sidebar-btn" onclick="location.href='ReportServlet'">
-                <i class="fas fa-file-alt"></i> Report Generation
-            </button>
+			<button class="sidebar-btn"
+				onclick="location.href='algomonitoring.jsp'">
+				<i class="fas fa-chart-line"></i> Algorithm Monitoring
+			</button>
+			<button class="sidebar-btn" onclick="location.href='ReportServlet'">
+				<i class="fas fa-file-alt"></i> Report Generation
+			</button>
 		</div>
 
 		<!-- Main Content -->
 		<div class="main-content">
 			<!-- Main Header -->
+
 			<div class="main-header">
 				<h1 class="page-title">User Management</h1>
-				<button class="admin-badge" onclick="location.href='DashboardServlet'">
-					<i class="fas fa-user-shield"></i> Admin Dashboard
-				</button>
+				<div class="header-actions">
+					<button class="admin-badge mr-2"
+						onclick="location.href='DashboardServlet'">
+						<i class="fas fa-user-shield"></i> Admin Dashboard
+					</button>
+					<button class="admin-badge btn-logout"
+						onclick="location.href='LogoutServlet'">
+						<i class="fas fa-sign-out-alt"></i> Logout
+					</button>
+				</div>
 			</div>
-    <div class="content-container">
-        <!-- Add Action Button -->
-        <button class="action-button" onclick="openModal()">
-            <i class="fas fa-user-cog"></i> Manage User Status
-        </button>
+			<div class="content-container">
+				<!-- Add Action Button -->
+				<button class="action-button" onclick="openModal()">
+					<i class="fas fa-user-cog"></i> Manage User Status
+				</button>
 
-        <!-- Modal Overlay -->
-        <div id="modalOverlay" class="modal-overlay">
-            <div class="modal">
-                <div class="modal-header">
-                    <h2 class="section-title">User Management</h2>
-                    <button class="close-modal" onclick="closeModal()">&times;</button>
-                </div>
+				<!-- Modal Overlay -->
+				<div id="modalOverlay" class="modal-overlay">
+					<div class="modal">
+						<div class="modal-header">
+							<h2 class="section-title">User Management</h2>
+							<button class="close-modal" onclick="closeModal()">&times;</button>
+						</div>
 
-                <%-- Display messages --%>
-                <% if(request.getAttribute("successMessage") != null) { %>
-                    <div class="alert alert-success">
-                        <%= request.getAttribute("successMessage") %>
-                    </div>
-                <% } %>
+						<%-- Display messages --%>
+						<%
+						if (request.getAttribute("successMessage") != null) {
+						%>
+						<div class="alert alert-success">
+							<%=request.getAttribute("successMessage")%>
+						</div>
+						<%
+						}
+						%>
 
-                <% if(request.getAttribute("errorMessage") != null) { %>
-                    <div class="alert alert-danger">
-                        <%= request.getAttribute("errorMessage") %>
-                    </div>
-                <% } %>
+						<%
+						if (request.getAttribute("errorMessage") != null) {
+						%>
+						<div class="alert alert-danger">
+							<%=request.getAttribute("errorMessage")%>
+						</div>
+						<%
+						}
+						%>
 
-                <form action="AdminServlet" method="POST" class="admin-form">
-                    <div class="form-group">
-                        <label for="mailID">User Email:</label>
-                        <input type="email" id="mailID" name="mailID" class="form-input" placeholder="Enter EmailID" required>
-                    </div>
+						<form action="AdminServlet" method="POST" class="admin-form">
+							<div class="form-group">
+								<label for="mailID">User Email:</label> <input type="email"
+									id="mailID" name="mailID" class="form-input"
+									placeholder="Enter EmailID" required>
+							</div>
 
-                    <div class="form-group">
-                        <label for="action">Action:</label>
-                        <select id="action" name="action" class="form-input" required>
-                            <option value="">Select an action</option>
-                            <option value="deactivate">Deactivate User</option>
-                            <option value="reactivate">Reactivate User</option>
-                        </select>
-                    </div>
+							<div class="form-group">
+								<label for="action">Action:</label> <select id="action"
+									name="action" class="form-input" required>
+									<option value="">Select an action</option>
+									<option value="deactivate">Deactivate User</option>
+									<option value="reactivate">Reactivate User</option>
+								</select>
+							</div>
 
-                    <button type="submit" class="btn btn-primary">Perform Action</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Search Box -->
-        <div class="search-container">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" id="searchInput" class="search-input" placeholder="Search by name, email..." onkeyup="searchUsers()">
-            </div>
-        </div>
-
-<!-- User Table -->
-					<div class="user-table">
-						<table>
-							<thead>
-								<tr>
-									<th>ID</th>
-									<th>Name</th>
-									<th>Email</th>
-									<th>Role</th>
-									<th>Status</th>
-									
-								</tr>
-							</thead>
-							<tbody id="userTableBody">
-								<%
-								String query = "SELECT UserID, Name, MailID, Role FROM users WHERE Role != 'Admin'";
-								try (Connection conn = GetConnection.getConnection();
-										Statement stmt = conn.createStatement();
-										ResultSet rs = stmt.executeQuery(query)) {
-
-									while (rs.next()) {
-										String role = rs.getString("Role");
-										boolean isDeactivated = role.endsWith("_DEACTIVATED");
-								%>
-								<tr data-email="<%=rs.getString("MailID")%>" class="user-row">
-									<td><%=rs.getInt("UserID")%></td>
-									<td><%=rs.getString("Name")%></td>
-									<td><%=rs.getString("MailID")%></td>
-									<td><%=role.replace("_DEACTIVATED", "")%></td>
-									<td>
-										<div
-											class="status-cell <%=isDeactivated ? "deactivated" : ""%>">
-											<i
-												class="fas <%=isDeactivated ? "fa-times-circle" : "fa-check-circle"%>"></i>
-											<%=isDeactivated ? "Deactivated" : "Active"%>
-										</div>
-									</td>
-									
-								</tr>
-								<%
-								}
-								} catch (Exception e) {
-								e.printStackTrace();
-								}
-								%>
-							</tbody>
-						</table>
+							<button type="submit" class="btn btn-primary">Perform
+								Action</button>
+						</form>
 					</div>
+				</div>
+
+				<!-- Search Box -->
+				<div class="search-container">
+					<div class="search-box">
+						<i class="fas fa-search"></i> <input type="text" id="searchInput"
+							class="search-input" placeholder="Search by name, email..."
+							onkeyup="searchUsers()">
+					</div>
+				</div>
+
+				<!-- User Table -->
+				<div class="user-table">
+					<table>
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Name</th>
+								<th>Email</th>
+								<th>Role</th>
+								<th>Status</th>
+
+							</tr>
+						</thead>
+						<tbody id="userTableBody">
+							<%
+							String query = "SELECT UserID, Name, MailID, Role FROM users WHERE Role != 'Admin'";
+							try (Connection conn = GetConnection.getConnection();
+									Statement stmt = conn.createStatement();
+									ResultSet rs = stmt.executeQuery(query)) {
+
+								while (rs.next()) {
+									String role = rs.getString("Role");
+									boolean isDeactivated = role.endsWith("_DEACTIVATED");
+							%>
+							<tr data-email="<%=rs.getString("MailID")%>" class="user-row">
+								<td><%=rs.getInt("UserID")%></td>
+								<td><%=rs.getString("Name")%></td>
+								<td><%=rs.getString("MailID")%></td>
+								<td><%=role.replace("_DEACTIVATED", "")%></td>
+								<td>
+									<div
+										class="status-cell <%=isDeactivated ? "deactivated" : ""%>">
+										<i
+											class="fas <%=isDeactivated ? "fa-times-circle" : "fa-check-circle"%>"></i>
+										<%=isDeactivated ? "Deactivated" : "Active"%>
+									</div>
+								</td>
+
+							</tr>
+							<%
+							}
+							} catch (Exception e) {
+							e.printStackTrace();
+							}
+							%>
+						</tbody>
+					</table>
 				</div>
 			</div>
 		</div>
-</div>
-    </div>
+	</div>
+	</div>
+	</div>
 
-    <script>
-    function openModal() {
-        document.getElementById('modalOverlay').style.display = 'block';
-        document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
-    }
+	<script>
+		function openModal() {
+			document.getElementById('modalOverlay').style.display = 'block';
+			document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+		}
 
-    function closeModal() {
-        document.getElementById('modalOverlay').style.display = 'none';
-        document.body.style.overflow = 'auto'; // Restore scrolling
-    }
+		function closeModal() {
+			document.getElementById('modalOverlay').style.display = 'none';
+			document.body.style.overflow = 'auto'; // Restore scrolling
+		}
 
-    // Close modal if clicking outside of it
-    document.getElementById('modalOverlay').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeModal();
-        }
-    });
+		// Close modal if clicking outside of it
+		document.getElementById('modalOverlay').addEventListener('click',
+				function(e) {
+					if (e.target === this) {
+						closeModal();
+					}
+				});
 
-    // Your existing searchUsers function remains the same
-    function searchUsers() {
-        var input = document.getElementById('searchInput');
-        var filter = input.value.toLowerCase();
-        var rows = document.getElementsByClassName('user-row');
+		// Your existing searchUsers function remains the same
+		function searchUsers() {
+			var input = document.getElementById('searchInput');
+			var filter = input.value.toLowerCase();
+			var rows = document.getElementsByClassName('user-row');
 
-        for (var i = 0; i < rows.length; i++) {
-            var name = rows[i].getElementsByTagName('td')[1].textContent.toLowerCase();
-            var email = rows[i].getElementsByTagName('td')[2].textContent.toLowerCase();
-            if (name.indexOf(filter) > -1 || email.indexOf(filter) > -1) {
-                rows[i].style.display = '';
-            } else {
-                rows[i].style.display = 'none';
-            }
-        }
-    }
-    </script>
+			for (var i = 0; i < rows.length; i++) {
+				var name = rows[i].getElementsByTagName('td')[1].textContent
+						.toLowerCase();
+				var email = rows[i].getElementsByTagName('td')[2].textContent
+						.toLowerCase();
+				if (name.indexOf(filter) > -1 || email.indexOf(filter) > -1) {
+					rows[i].style.display = '';
+				} else {
+					rows[i].style.display = 'none';
+				}
+			}
+		}
+	</script>
 </body>
 </html>

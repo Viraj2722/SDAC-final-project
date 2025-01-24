@@ -1072,34 +1072,7 @@
                     }
                     doc.save('complete_analysis_report.pdf');
                 
-            } else if (format === 'excel') {
-                // Existing Excel export code remains unchanged
-                const wb = XLSX.utils.book_new();
-                chartIds.forEach(chartId => {
-                    const chart = chartInstances[chartId];
-                    if (!chart) {
-                        console.warn(`Chart with ID ${chartId} not found.`);
-                        return;
-                    }
-
-                    const series = chart.w.config.series || [];
-                    const rows = [['Series', 'Category', 'Value']];
-
-                    series.forEach(s => {
-                        (s.data || []).forEach(point => {
-                            rows.push([s.name, point.x, point.y]);
-                        });
-                    });
-
-                    if (rows.length > 1) {
-                        const ws = XLSX.utils.aoa_to_sheet(rows);
-                        XLSX.utils.book_append_sheet(wb, ws, chartId);
-                    }
-                });
-
-                XLSX.writeFile(wb, 'complete_analysis_report.xlsx');
-            }
-        }
+            } 
         
 
         // Initialize charts
