@@ -15,7 +15,7 @@ String userEmail = (String) userSession.getAttribute("mailID");
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ShopHub</title>
+<title>ElementStore</title>
 <link	
 	href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
 	rel="stylesheet">
@@ -47,38 +47,6 @@ body {
 	font-family: "Lato", serif;
 	font-weight: 400;
 	font-style: normal;
-}
-
-/* Scroll to Top Button */
-#scrollToTopBtn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: var(--accent-color);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-}
-
-#scrollToTopBtn:hover {
-    background-color: #5d4de6;
-    transform: translateY(-5px);
-}
-
-#scrollToTopBtn.show {
-    opacity: 1;
-    visibility: visible;
 }
 
 .navbar {
@@ -212,6 +180,38 @@ to {
 	align-items: center;
 	opacity: 0;
 	transition: opacity 0.3s ease;
+}
+
+/* Scroll to Top Button */
+#scrollToTopBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+}
+
+#scrollToTopBtn:hover {
+    background-color: #5d4de6;
+    transform: translateY(-5px);
+}
+
+#scrollToTopBtn.show {
+    opacity: 1;
+    visibility: visible;
 }
 
 .category-overlay span {
@@ -772,7 +772,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	<nav class="navbar navbar-expand-lg navbar-light fixed-top">
 		<div class="container">
 			<!-- Logo with home link -->
-			<a class="navbar-brand" href="homepage.jsp"> ShopHub </a>
+			<a class="navbar-brand" href="homepage.jsp"> ElementStore </a>
 
 			<!-- Toggler for mobile -->
 			<button class="navbar-toggler" type="button"
@@ -796,13 +796,10 @@ document.addEventListener('DOMContentLoaded', () => {
 							<li class="dropdown-item-text" style="color: white;"><span
 								class="fw-bold"><%=userEmail%></span></li>
 							<li><hr class="dropdown-divider"></li>
-							<li><a class="dropdown-item" href="userprofile.jsp"> <i
-									class="bi bi-clock-history me-2"></i>User Profile
-							</a></li>
 							<li><a class="dropdown-item" href="orderhistory.jsp"> <i
 									class="bi bi-clock-history me-2"></i>Order History
 							</a></li>
-							<li><a class="dropdown-item" href="feedbackhistory.jsp">
+							<li><a class="dropdown-item" href="feedback-history.jsp">
 									<i class="bi bi-chat-left-text me-2"></i>Feedback
 							</a></li>
 							<li><hr class="dropdown-divider"></li>
@@ -1520,10 +1517,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			</div>
 		</div>
 	</div>
-<!-- Scroll to Top Button -->
+	<!-- Scroll to Top Button -->
 <button id="scrollToTopBtn" title="Go to top">
     <i class="fas fa-chevron-up"></i>
 </button>
+
 	<footer class="py-4">
 		<div class="container">
 			<div class="row g-4">
@@ -1535,7 +1533,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				<div class="col-md-6">
 					<h5 class="mb-3">Contact</h5>
 					<p class="mb-0">
-						Email: hello@shophub.com<br>Phone: (555) 123-4567
+						Email: hello@elementstore.com<br>Phone: (555) 123-4567
 					</p>
 				</div>
 			</div>
