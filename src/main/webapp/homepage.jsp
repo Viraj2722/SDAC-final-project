@@ -796,6 +796,9 @@ document.addEventListener('DOMContentLoaded', () => {
 							<li class="dropdown-item-text" style="color: white;"><span
 								class="fw-bold"><%=userEmail%></span></li>
 							<li><hr class="dropdown-divider"></li>
+							<li><a class="dropdown-item" href="userprofile.jsp"> <i
+									class="bi bi-clock-history me-2"></i>User Profile
+							</a></li>
 							<li><a class="dropdown-item" href="orderhistory.jsp"> <i
 									class="bi bi-clock-history me-2"></i>Order History
 							</a></li>

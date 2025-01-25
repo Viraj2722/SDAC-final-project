@@ -228,7 +228,6 @@ body {
 	background-color: #c0392b;
 }
 
-/* Table Styles */
 .product-table {
 	background: white;
 	border-radius: 10px;
@@ -280,7 +279,7 @@ tr:hover {
 .btn-update {
 	background-color: #4834d4;
 	color: white;
-	margin-bottom:3px
+	margin-bottom: 3px
 }
 
 .btn-update:hover {
@@ -291,7 +290,7 @@ tr:hover {
 .btn-delete {
 	background-color: #e74c3c;
 	color: white;
-	width:104px;
+	width: 104px;
 }
 
 .btn-delete:hover {
@@ -325,17 +324,17 @@ tr:hover {
 }
 
 .header-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
+	display: flex;
+	align-items: center;
+	gap: 0.8rem;
 }
 
 .btn-logout {
-    background-color: #e74c3c;
+	background-color: #e74c3c;
 }
 
 .btn-logout:hover {
-    background-color: #c0392b;
+	background-color: #c0392b;
 }
 
 @media ( max-width : 768px) {
@@ -389,21 +388,13 @@ tr:hover {
 			<div class="main-header">
 				<h1 class="page-title">Product Management</h1>
 				<button class="admin-badge btn-logout"
-						onclick="location.href='LogoutServlet'">
-						<i class="fas fa-sign-out-alt"></i> Logout
-					</button>
+					onclick="location.href='LogoutServlet'">
+					<i class="fas fa-sign-out-alt"></i> Logout
+				</button>
 			</div>
 
 			<!-- Content Container -->
 			<div class="content-container">
-				<!-- Search Box -->
-				<div class="search-container">
-					<div class="search-box">
-						<i class="fas fa-search"></i> <input type="text" id="searchInput"
-							class="search-input" placeholder="Search products..."
-							onkeyup="searchProducts()">
-					</div>
-				</div>
 
 				<!-- Add Product Form -->
 				<div class="form-container">
@@ -420,12 +411,12 @@ tr:hover {
 						</div>
 
 						<div class="form-group">
-							<label for="cost">Cost Price ($)</label> <input type="number"
+							<label for="cost">Cost Price (₹)</label> <input type="number"
 								id="cost" name="cost" step="0.01" min="0" required>
 						</div>
 
 						<div class="form-group">
-							<label for="sellingPrice">Selling Price ($)</label> <input
+							<label for="sellingPrice">Selling Price (₹)</label> <input
 								type="number" id="sellingPrice" name="sellingPrice" step="0.01"
 								min="0" required>
 						</div>
@@ -474,13 +465,13 @@ tr:hover {
 						</div>
 
 						<div class="form-group">
-							<label for="updateCost">Cost Price ($)</label> <input
+							<label for="updateCost">Cost Price (₹)</label> <input
 								type="number" id="updateCost" name="cost" step="0.01" min="0"
 								required>
 						</div>
 
 						<div class="form-group">
-							<label for="updateSellingPrice">Selling Price ($)</label> <input
+							<label for="updateSellingPrice">Selling Price (₹)</label> <input
 								type="number" id="updateSellingPrice" name="sellingPrice"
 								step="0.01" min="0" required>
 						</div>
@@ -512,6 +503,14 @@ tr:hover {
 					</form>
 				</div>
 
+				<div class="search-container">
+					<div class="search-box">
+						<i class="fas fa-search"></i> <input type="text" id="searchInput"
+							class="search-input" placeholder="Search products..."
+							onkeyup="searchProducts()">
+					</div>
+				</div>
+				
 				<div class="product-table">
 					<table>
 						<thead>
@@ -554,8 +553,8 @@ tr:hover {
 								<td><%=productId%></td>
 								<td><%=name%></td>
 								<td><%=category%></td>
-								<td>$<%=String.format("%.2f", cost)%></td>
-								<td>$<%=String.format("%.2f", sellingPrice)%></td>
+								<td>₹<%=String.format("%.2f", cost)%></td>
+								<td>₹<%=String.format("%.2f", sellingPrice)%></td>
 								<td><%=stock%></td>
 								<td><%=salesData%></td>
 								<td><%=reorderLevel%></td>
