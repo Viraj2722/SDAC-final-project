@@ -10,13 +10,14 @@ if (userSession == null || userSession.getAttribute("mailID") == null) {
 }
 String userEmail = (String) userSession.getAttribute("mailID");
 %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ElementStore</title>
-<link	
+<link
 	href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
 	rel="stylesheet">
 <link
@@ -184,34 +185,34 @@ to {
 
 /* Scroll to Top Button */
 #scrollToTopBtn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: var(--accent-color);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	background-color: var(--accent-color);
+	color: white;
+	border: none;
+	border-radius: 50%;
+	width: 50px;
+	height: 50px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	transition: all 0.3s ease;
+	z-index: 1000;
+	opacity: 0;
+	visibility: hidden;
 }
 
 #scrollToTopBtn:hover {
-    background-color: #5d4de6;
-    transform: translateY(-5px);
+	background-color: #5d4de6;
+	transform: translateY(-5px);
 }
 
 #scrollToTopBtn.show {
-    opacity: 1;
-    visibility: visible;
+	opacity: 1;
+	visibility: visible;
 }
 
 .category-overlay span {
@@ -368,52 +369,29 @@ to {
 	animation-delay: 0.4s;
 }
 </style>
-<script src='https://kit.fontawesome.com/a076d05399.js'
-	crossorigin='anonymous'></script>
 <script>
-   		
-    function saveCartToLocalStorage(cartData) {
-        localStorage.setItem('userCart', JSON.stringify(cartData));
-    }
+    const contextPath = window.location.pathname.substring(0, window.location.pathname.indexOf('/', 1));
+</script>
 
-    // Function to load cart from localStorage
-    function loadCartFromLocalStorage() {
-        return JSON.parse(localStorage.getItem('userCart') || '{}');
-    }
+<script>
+function updateQuantity(productId, change) {
+    const quantityInput = document.getElementById('quantity-'+productId);
+    let newValue = parseInt(quantityInput.value) + change;
+    const minQuantity = parseInt(quantityInput.getAttribute('min'));
+    const maxQuantity = parseInt(quantityInput.getAttribute('max'));
     
-        function updateQuantity(productId, change) {
-            const quantityInput = document.getElementById('quantity-'+productId);
-            let newValue = parseInt(quantityInput.value) + change;
-            const minQuantity = parseInt(quantityInput.getAttribute('min'));
-            const maxQuantity = parseInt(quantityInput.getAttribute('max'));
-            
-            if (newValue < minQuantity) newValue = minQuantity;
-            if (newValue > maxQuantity) newValue = maxQuantity;
+    if (newValue < minQuantity) newValue = minQuantity;
+    if (newValue > maxQuantity) newValue = maxQuantity;
 
-            quantityInput.value = newValue;
-        }
+    quantityInput.value = newValue;
+}
 
-      //Add to cart function
+// Add to cart function
 async function addToCart(productId, productName, price) {
     try {
         const quantity = document.getElementById('quantity-'+productId).value;
 
-        // First update the stock
-        const stockResponse = await fetch("UpdateStockServlet", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: "productId="+productId+"&quantity="+quantity,
-        });
-
-        if (!stockResponse.ok) {
-            const errorText = await stockResponse.text();
-            alert("Failed to update stock: " + errorText);
-            return;
-        }
-
-        // If stock update successful, add to cart
+        // Add to cart - stock will be updated in the servlet
         const cartResponse = await fetch("AddToCartServlet", {
             method: "POST",
             headers: {
@@ -424,11 +402,12 @@ async function addToCart(productId, productName, price) {
 
         if (cartResponse.ok) {
             const cartData = await cartResponse.text();
-            updateCartModal(cartData);
+            if (cartData.startsWith("Error:")) {
+                alert(cartData);
+                return;
+            }
             
-            // Save cart to localStorage
-            saveCartToLocalStorage(cartData);
-
+            updateCartModal(cartData);
             alert("Added "+quantity+" of "+productName+" to the cart!");
 
             // Update the stock display on the page
@@ -460,311 +439,287 @@ async function addToCart(productId, productName, price) {
     }
 }
 
-// Function to save cart to localStorage
-function saveCartToLocalStorage(cartData) {
-    localStorage.setItem('userCart', cartData);
+// Function to update the cart modal dynamically
+function updateCartModal(cartData) {
+    const cartItemsDiv = document.getElementById("cartItems");
+    const cartTotalDiv = document.getElementById("cartTotal");
+
+    // Handle empty cart data cases
+    if (!cartData || cartData.trim() === "" || cartData === "Cart is empty") {
+        cartItemsDiv.innerHTML = '<div class="text-center py-8">'+
+            '<i class="fas fa-shopping-bag text-gray-300 text-5xl mb-4"></i>'+
+            '<p class="text-gray-500">Your cart is empty</p>'+
+            '<button class="btn btn-outline-primary mt-3" data-bs-dismiss="modal">'+
+            'Start Shopping'+
+            '</button>'+
+            '</div>';
+        cartTotalDiv.textContent = "₹0.00";
+        return;
+    }
+
+    const cartItems = cartData.trim().split("\n");
+    let total = 0;
+
+    // Additional check for empty array or invalid data
+    if (cartItems.length === 0 || (cartItems.length === 1 && cartItems[0] === "")) {
+        cartItemsDiv.innerHTML = '<div class="text-center py-8">'+
+            '<i class="fas fa-shopping-bag text-gray-300 text-5xl mb-4"></i>'+
+            '<p class="text-gray-500">Your cart is empty</p>'+
+            '<button class="btn btn-outline-primary mt-3" data-bs-dismiss="modal">'+
+            'Start Shopping'+
+            '</button>'+
+            '</div>';
+        cartTotalDiv.textContent = "₹0.00";
+        return;
+    }
+
+    let cartHTML = '<div class="space-y-4">';
+
+    for (const item of cartItems) {
+        const [productId, quantity, price, productName] = item.split(",");
+        
+        // Skip invalid items
+        if (!productId || !quantity || !price || !productName) continue;
+        
+        const itemTotal = parseFloat(price) * parseInt(quantity);
+        if (isNaN(itemTotal)) continue;
+        
+        total += itemTotal;
+
+        cartHTML += '<div class="flex items-center p-4 border-b">' +
+            '<div class="flex-grow">' +
+            '<h6 class="font-semibold text-gray-900" style="color:white;">' + productName + '</h6>' +
+            '<div class="flex items-center mt-1" style="color:white;">' +
+            '<span class="text-gray-600">Qty: ' + quantity + '</span>' +
+            '<span class="mx-2 text-gray-400">|</span>' +
+            '<span class="text-gray-600">₹' + parseFloat(price).toFixed(2) + ' each</span>' +
+            '</div>' +
+            '</div>' +
+            '<div class="text-end ms-4">' +
+            '<div class="font-semibold text-primary">₹' + itemTotal.toFixed(2) + '</div>' +
+            '<button onclick="removeFromCart(' + productId + ', ' + quantity + ')" ' +
+            'class="btn btn-sm btn-outline-danger mt-2">' +
+            '<i class="fas fa-trash-alt"></i>' +
+            '</button>' +
+            '</div>' +
+            '</div>';
+    }
+
+    cartHTML += '</div>';
+    
+    // Only update the cart if we have valid items
+    if (total > 0) {
+        cartItemsDiv.innerHTML = cartHTML;
+        cartTotalDiv.textContent = '₹' + total.toFixed(2);
+    } else {
+        cartItemsDiv.innerHTML = '<div class="text-center py-8">'+
+            '<i class="fas fa-shopping-bag text-gray-300 text-5xl mb-4"></i>'+
+            '<p class="text-gray-500">Your cart is empty</p>'+
+            '<button class="btn btn-outline-primary mt-3" data-bs-dismiss="modal">'+
+            'Start Shopping'+
+            '</button>'+
+            '</div>';
+        cartTotalDiv.textContent = "₹0.00";
+    }
 }
 
-// Function to load cart from localStorage on page load
+// Function to load cart from session on page load
 document.addEventListener('DOMContentLoaded', () => {
-    const savedCart = localStorage.getItem('userCart');
-    if (savedCart) {
-        updateCartModal(savedCart);
+    fetch('AddToCartServlet')
+        .then(response => response.text())
+        .then(cartData => {
+            if (cartData !== "Cart is empty") {
+                updateCartModal(cartData);
+            }
+        })
+        .catch(error => console.error('Error loading cart:', error));
+
+    // Add event listeners to buttons
+    const addToCartButtons = document.querySelectorAll(".add-to-cart-btn");
+    addToCartButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const productId = button.getAttribute("data-product-id");
+            const productName = button.getAttribute("data-product-name");
+            const price = button.getAttribute("data-product-price");
+
+            addToCart(productId, productName, price);
+        });
+    });
+
+    // Star rating event listeners
+    const stars = document.querySelectorAll('.star-rating');
+    stars.forEach(star => {
+        star.addEventListener('click', () => {
+            const selected = star.classList.contains('selected');
+            stars.forEach(s => s.classList.remove('selected'));
+            if (!selected) {
+                star.classList.add('selected');
+            }
+        });
+    });
+
+    // Gallery item event listeners
+    document.querySelectorAll('.gallery-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetSection = document.querySelector(targetId);
+            
+            if (targetSection) {
+                targetSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+});
+
+async function fetchAddress() {
+    try {
+        const response = await fetch('GetCustomerAddressServlet');
+        if (!response.ok) {
+            throw new Error('Failed to fetch address');
+        }
+        const address = await response.text();
+        document.getElementById('deliveryAddress').textContent = address;
+    } catch (error) {
+        console.error('Error fetching address:', error);
+        document.getElementById('deliveryAddress').textContent = 'Error loading address';
     }
-});      
-        function parseCartData(cartDataString) {
-            const cartItems = cartDataString.trim().split("\n");
-            const cartObj = {};
-            cartItems.forEach(item => {
-                const [productId, quantity, price, productName] = item.split(",");
-                if (productId) {
-                    cartObj[productId] = {
-                        quantity: parseInt(quantity),
-                        price: parseFloat(price),
-                        name: productName
-                    };
-                }
-            });
-            return cartObj;
+}
+
+document.getElementById('cartModal').addEventListener('shown.bs.modal', function() {
+    fetchAddress();
+});
+
+
+
+
+// Function to remove from cart
+function removeFromCart(productId, quantity) {
+    const formData = new URLSearchParams();
+    formData.append('productId', productId);
+    formData.append('quantity', -quantity); // Negative quantity to remove items
+
+    fetch('AddToCartServlet', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData
+    })
+    .then(response => response.text())
+    .then(cartData => {
+        updateCartModal(cartData);
+    })
+    .catch(error => console.error('Error removing from cart:', error));
+}
+
+async function processCheckout() {
+    const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+    paymentModal.show();
+}
+
+async function processPurchase(paymentMethod) {
+    try {
+        const cartItems = document.getElementById('cartItems');
+        if (!cartItems) {
+            throw new Error('Cart not found');
         }
+
+        const itemDivs = cartItems.querySelectorAll('.flex.items-center.p-4.border-b');
+        if (!itemDivs || itemDivs.length === 0) {
+            throw new Error('No items in cart');
+        }
+
+        const cartTotal = document.getElementById('cartTotal').textContent;
+        const totalCartValue = parseFloat(cartTotal.replace('₹', ''));
+
+        let products = [];
+
+        itemDivs.forEach((item) => {
+            try {
+                const productName = item.querySelector('.font-semibold.text-gray-900')?.textContent?.trim();
+                const removeButton = item.querySelector('button[onclick*="removeFromCart"]');
+                const productId = removeButton?.getAttribute('onclick')?.match(/removeFromCart\((\d+),\s*\d+\)/)?.[1];
+                
+                const quantityText = item.querySelector('.text-gray-600')?.textContent?.trim();
+                const quantity = quantityText?.match(/Qty:\s*(\d+)/)?.[1];
+
+                const totalElement = item.querySelector('.font-semibold.text-primary');
+                const itemTotal = totalElement?.textContent?.replace('₹', '').trim();
+
+                if (!productId || !quantity || !itemTotal) {
+                    console.error('Missing data:', { productId, productName, quantity, itemTotal });
+                    throw new Error('Missing required product information.');
+                }
+
+                products.push({
+                    productId: productId,
+                    productName: productName,
+                    quantity: quantity,
+                    total: itemTotal
+                });
+            } catch (error) {
+                console.error('Error processing item:', error);
+                throw error;
+            }
+        });
+
+        const formData = new URLSearchParams();
+        formData.append('paymentMethod', paymentMethod);
+        formData.append('itemCount', products.length);
+        formData.append('cartTotal', totalCartValue);
         
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedCart = loadCartFromLocalStorage();
-            if (Object.keys(savedCart).length > 0) {
-                // Reconstruct cart data string for updateCartModal
-                const cartDataString = Object.entries(savedCart)
-                    .map(([productId, item]) => 
-                        `${productId},${item.quantity},${item.price},${item.name}`
-                    )
-                    .join("\n");
-                
-                updateCartModal(cartDataString);
-            }
-        });
-
-        //Function to update the cart modal dynamically
-        // Function to update the cart modal dynamically
-        function updateCartModal(cartData) {
-            const cartItemsDiv = document.getElementById("cartItems");
-            const cartTotalDiv = document.getElementById("cartTotal");
-
-            const cartItems = cartData.trim().split("\n");
-            let total = 0;
-
-            if (cartItems.length === 0 || (cartItems.length === 1 && cartItems[0] === "")) {
-                cartItemsDiv.innerHTML = '<div class="text-center py-8">'+
-                       '<i class="fas fa-shopping-bag text-gray-300 text-5xl mb-4"></i>'+
-                        '<p class="text-gray-500">Your cart is empty</p>'+
-                       '<button class="btn btn-outline-primary mt-3" data-bs-dismiss="modal">'+
-                          '  Start Shopping '+
-                       ' </button>'+
-                   ' </div>';
-                cartTotalDiv.textContent = "₹0.00";
-                return;
-            }
-
-            let cartHTML = '<div class="space-y-4">';
-
-            for (const item of cartItems) {
-                const [productId, quantity, price, productName] = item.split(",");
-                const itemTotal = parseFloat(price) * parseInt(quantity);
-                total += itemTotal;
-
-                cartHTML += '<div class="flex items-center p-4 border-b">' +
-                '<div class="flex-grow">' +
-                    '<h6 class="font-semibold text-gray-900" style="color:white;">' + productName + '</h6>' +
-                    '<div class="flex items-center mt-1" style="color:white;">' +
-                        '<span class="text-gray-600">Qty: ' + quantity + '</span>' +
-                        '<span class="mx-2 text-gray-400">|</span>' +
-                        '<span class="text-gray-600">₹' + parseFloat(price).toFixed(2) + ' each</span>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="text-end ms-4">' +
-                    '<div class="font-semibold text-primary">₹' + itemTotal.toFixed(2) + '</div>' +
-                    '<button onclick="removeFromCart(' + productId + ', ' + quantity + ')" ' +
-                    'class="btn btn-sm btn-outline-danger mt-2">' +
-                    '<i class="fas fa-trash-alt"></i>' +
-                '</button>' +
-                '</div>' +
-            '</div>';    }
-
-            cartHTML += '</div>';
-            cartItemsDiv.innerHTML = cartHTML;
-            cartTotalDiv.textContent = '₹'+total.toFixed(2);
-        }
-
-        // Function to remove item from cart
-        async function removeFromCart(productId, quantity) {
-            try {
-                const formData = new URLSearchParams();
-                formData.append('productId', productId);
-                formData.append('quantity', quantity);
-
-                // Get the context path
-                const contextPath = window.location.pathname.substring(0, window.location.pathname.indexOf('/', 1));
-                
-                const response = await fetch(contextPath + '/RemoveFromCartServlet', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: formData.toString()
-                });
-
-                if (response.ok) {
-                    const cartData = await response.text();
-                    updateCartModal(cartData);
-                    
-                    // Update the stock display if it exists on the page
-                    const stockDisplay = document.querySelector('[data-stock-id="' + productId + '"]');
-                    if (stockDisplay) {
-                        const currentStock = parseInt(stockDisplay.textContent) + quantity;
-                        stockDisplay.textContent = currentStock;
-                        
-                        // Update the max quantity allowed in the input if it exists
-                        const quantityInput = document.getElementById('quantity-' + productId);
-                        if (quantityInput) {
-                            quantityInput.max = currentStock;
-                        }
-                        
-                        // Re-enable add to cart button if it was disabled
-                        const addToCartBtn = document.querySelector('[data-product-id="' + productId + '"]');
-                        if (addToCartBtn) {
-                            addToCartBtn.disabled = false;
-                        }
-                    }
-                } else {
-                    const errorText = await response.text();
-                    console.error('Error removing from cart:', errorText);
-                    alert('Failed to remove item from cart. Please try again.');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred while removing the item from cart.');
-            }
-        }
-
-        async function processCheckout() {
-            const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
-            paymentModal.show();
-        }
-
-        // Function to handle payment and create sale
-        // Update the processPurchase function with proper data extraction and error handling
-        async function processPurchase(paymentMethod) {
-            try {
-                // Get all cart items from the cart modal
-                const cartItems = document.getElementById('cartItems');
-                if (!cartItems) {
-                    throw new Error('Cart not found');
-                }
-                // Get all item divs
-                const itemDivs = cartItems.querySelectorAll('.flex.items-center.p-4.border-b');
-                if (!itemDivs || itemDivs.length === 0) {
-                    throw new Error('No items in cart');
-                }
-                // Calculate total cart value
-                const cartTotal = document.getElementById('cartTotal').textContent;
-                const totalCartValue = parseFloat(cartTotal.replace('₹', ''));
-
-                // Create array to store all products
-                let products = [];
-
-                // Process each item and store in array
-                itemDivs.forEach((item) => {
-                    try {
-                        const productName = item.querySelector('.font-semibold.text-gray-900')?.textContent?.trim();
-                        const removeButton = item.querySelector('button[onclick*="removeFromCart"]');
-                        // Updated regex pattern to match removeFromCart(productId, quantity)
-                        const productId = removeButton?.getAttribute('onclick')?.match(/removeFromCart\((\d+),\s*\d+\)/)?.[1];
-                        console.log("Remove button onclick:", removeButton?.getAttribute('onclick'));
-                        console.log("productId extracted:", productId);
-
-                        const quantityText = item.querySelector('.text-gray-600')?.textContent?.trim();
-                        const quantity = quantityText?.match(/Qty:\s*(\d+)/)?.[1];
-
-                        const totalElement = item.querySelector('.font-semibold.text-primary');
-                        const itemTotal = totalElement?.textContent?.replace('₹', '').trim();
-
-                        if (!productId || !quantity || !itemTotal) {
-                            console.error('Missing data:', { productId, productName, quantity, itemTotal });
-                            throw new Error('Missing required product information.');
-                        }
-
-                        products.push({
-                            productId: productId,
-                            productName: productName,
-                            quantity: quantity,
-                            total: itemTotal
-                        });
-                    } catch (error) {
-                        console.error('Error processing item:', error);
-                        throw error;
-                    }
-                });
-
-                // Rest of the function remains the same...
-
-                
-                // Create FormData with cart information
-                const formData = new URLSearchParams();
-                formData.append('paymentMethod', paymentMethod);
-                formData.append('itemCount', products.length);
-                formData.append('cartTotal', totalCartValue);
-                
-                // Add all products to formData
-                products.forEach((product, index) => {
-                    formData.append('productId_' + index, product.productId);
-                    formData.append('productName_' + index, product.productName);
-                    formData.append('quantity_' + index, product.quantity);
-                    formData.append('total_' + index, product.total);
-                });
-                
-                // Also send the entire products array as JSON for easier server-side processing
-                formData.append('products', JSON.stringify(products));
-
-                // Send request to process sale
-                const response = await fetch('ProcessSaleServlet', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: formData.toString()
-                });
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error('Server error: ' + errorText);
-                }
-                
-                const result = await response.text();
-                if (result !== 'success') {
-                    throw new Error('Purchase processing failed');
-                }
-                
-                // Success handling
-                alert('Purchase successful! Thank you for shopping with us.');
-                
-                // Close modals
-                const paymentModal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
-                const cartModal = bootstrap.Modal.getInstance(document.getElementById('cartModal'));
-                if (paymentModal) paymentModal.hide();
-                if (cartModal) cartModal.hide();
-                
-                // Clear cart and refresh page
-                updateCartModal('');
-                window.location.reload();
-            } catch (error) {
-                console.error('Purchase processing error:', error);
-                alert('Error processing purchase: ' + error.message);
-            }
-        }
-	
-        function logout() {
-            if(confirm('Are you sure you want to logout?')) {
-                window.location.href = 'LogoutServlet';
-            }
-        }
-
-        // Add event listeners to buttons dynamically
-        document.addEventListener("DOMContentLoaded", () => {
-            const addToCartButtons = document.querySelectorAll(".add-to-cart-btn");
-            addToCartButtons.forEach((button) => {
-                button.addEventListener("click", () => {
-                    const productId = button.getAttribute("data-product-id");
-                    const productName = button.getAttribute("data-product-name");
-                    const price = button.getAttribute("data-product-price");
-
-                    addToCart(productId, productName, price);
-                });
-            });
-        });
-        const stars = document.querySelectorAll('.star-rating');
-        stars.forEach(star => {
-            star.addEventListener('click', () => {
-                const selected = star.classList.contains('selected');
-                stars.forEach(s => s.classList.remove('selected'));
-                if (!selected) {
-                    star.classList.add('selected');
-                }
-            });
+        products.forEach((product, index) => {
+            formData.append('productId_' + index, product.productId);
+            formData.append('productName_' + index, product.productName);
+            formData.append('quantity_' + index, product.quantity);
+            formData.append('total_' + index, product.total);
         });
         
-        document.querySelectorAll('.gallery-item').forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                const targetSection = document.querySelector(targetId);
-                
-                if (targetSection) {
-                    targetSection.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
+        formData.append('products', JSON.stringify(products));
+
+        const response = await fetch('ProcessSaleServlet', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData.toString()
         });
-    </script>
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error('Server error: ' + errorText);
+        }
+        
+        const result = await response.text();
+        if (result !== 'success') {
+            throw new Error('Purchase processing failed');
+        }
+        
+        alert('Purchase successful! Thank you for shopping with us.');
+        
+        const paymentModal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+        const cartModal = bootstrap.Modal.getInstance(document.getElementById('cartModal'));
+        if (paymentModal) paymentModal.hide();
+        if (cartModal) cartModal.hide();
+        
+        updateCartModal('');
+        window.location.reload();
+    } catch (error) {
+        console.error('Purchase processing error:', error);
+        alert('Error processing purchase: ' + error.message);
+    }
+}
+
+function logout() {
+    if(confirm('Are you sure you want to logout?')) {
+        window.location.href = 'LogoutServlet';
+    }
+}
+</script>
 >
 
 </head>
@@ -1467,6 +1422,11 @@ document.addEventListener('DOMContentLoaded', () => {
 						</div>
 						<p class="text-light opacity-75 mt-2">Shipping and taxes
 							calculated at checkout</p>
+						<div class="mt-3">
+							<h6 class="text-white">Delivery Address:</h6>
+							<p id="deliveryAddress" class="text-light opacity-75">Loading
+								address...</p>
+						</div>
 					</div>
 				</div>
 				<div class="modal-footer border-top"
@@ -1521,9 +1481,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		</div>
 	</div>
 	<!-- Scroll to Top Button -->
-<button id="scrollToTopBtn" title="Go to top">
-    <i class="fas fa-chevron-up"></i>
-</button>
+	<button id="scrollToTopBtn" title="Go to top">
+		<i class="fas fa-chevron-up"></i>
+	</button>
 
 	<footer class="py-4">
 		<div class="container">
@@ -1545,7 +1505,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	<script
 		src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-		<script>
+	<script>
     // Scroll to Top Button functionality
     document.addEventListener('DOMContentLoaded', function() {
         const scrollToTopBtn = document.getElementById('scrollToTopBtn');

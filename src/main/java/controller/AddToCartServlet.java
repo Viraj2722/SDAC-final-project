@@ -18,51 +18,51 @@ import db.GetConnection;
 @WebServlet("/AddToCartServlet")
 public class AddToCartServlet extends HttpServlet {
     
-	 @Override
-	    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-	            throws ServletException, IOException {
-	        
-	        HttpSession session = request.getSession();
-	        PrintWriter out = response.getWriter();
-	        Connection conn = null;
-	        
-	        try {
-	            conn = GetConnection.getConnection();
-	            
-	            // Retrieve cart from session
-	            HashMap<Integer, Integer> cart = (HashMap<Integer, Integer>) session.getAttribute("cart");
-	            
-	            if (cart == null || cart.isEmpty()) {
-	                out.print("Cart is empty");
-	                return;
-	            }
-	            
-	            // Build cart data with product details
-	            StringBuilder cartData = new StringBuilder();
-	            for (Map.Entry<Integer, Integer> entry : cart.entrySet()) {
-	                int pid = entry.getKey();
-	                int qty = entry.getValue();
-	                ProductInfo productInfo = getProductInfo(pid, conn);
-	                cartData.append(pid).append(",")
-	                       .append(qty).append(",")
-	                       .append(productInfo.price).append(",")
-	                       .append(productInfo.name).append("\n");
-	            }
-	            
-	            out.print(cartData.toString());
-	            
-	        } catch (Exception e) {
-	            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-	            out.print("Error retrieving cart: " + e.getMessage());
-	        } finally {
-	            try {
-	                if (conn != null) conn.close();
-	            } catch (Exception e) {
-	                e.printStackTrace();
-	            }
-	        }
-	    }
-	
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        HttpSession session = request.getSession();
+        PrintWriter out = response.getWriter();
+        Connection conn = null;
+        
+        try {
+            conn = GetConnection.getConnection();
+            
+            // Retrieve cart from session
+            HashMap<Integer, Integer> cart = (HashMap<Integer, Integer>) session.getAttribute("cart");
+            
+            if (cart == null || cart.isEmpty()) {
+                out.print("Cart is empty");
+                return;
+            }
+            
+            // Build cart data with product details
+            StringBuilder cartData = new StringBuilder();
+            for (Map.Entry<Integer, Integer> entry : cart.entrySet()) {
+                int pid = entry.getKey();
+                int qty = entry.getValue();
+                ProductInfo productInfo = getProductInfo(pid, conn);
+                cartData.append(pid).append(",")
+                       .append(qty).append(",")
+                       .append(productInfo.price).append(",")
+                       .append(productInfo.name).append("\n");
+            }
+            
+            out.print(cartData.toString());
+            
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.print("Error retrieving cart: " + e.getMessage());
+        } finally {
+            try {
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -81,36 +81,56 @@ public class AddToCartServlet extends HttpServlet {
             int productId = Integer.parseInt(request.getParameter("productId"));
             int quantity = Integer.parseInt(request.getParameter("quantity"));
             
-            // Check stock availability first
-            String checkStockQuery = "SELECT Stock FROM products WHERE ProductID = ? FOR UPDATE";
-            pstmt = conn.prepareStatement(checkStockQuery);
-            pstmt.setInt(1, productId);
-            rs = pstmt.executeQuery();
-            
-            if (rs.next()) {
-                int currentStock = rs.getInt("Stock");
-                if (currentStock < quantity) {
-                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                    out.print("Error: Insufficient stock. Only " + currentStock + " items available.");
-                    return;
-                }
-                
-                // Update stock
-                String updateStockQuery = "UPDATE products SET Stock = Stock - ? WHERE ProductID = ?";
-                pstmt = conn.prepareStatement(updateStockQuery);
-                pstmt.setInt(1, quantity);
-                pstmt.setInt(2, productId);
-                pstmt.executeUpdate();
-            }
-            
             // Get or create cart in session
             HashMap<Integer, Integer> cart = (HashMap<Integer, Integer>) session.getAttribute("cart");
             if (cart == null) {
                 cart = new HashMap<>();
             }
             
-            // Add or update product quantity in cart
-            cart.put(productId, cart.getOrDefault(productId, 0) + quantity);
+            if (quantity < 0) { // Remove from cart case
+                // Return stock to inventory
+                String updateStockQuery = "UPDATE products SET Stock = Stock + ? WHERE ProductID = ?";
+                pstmt = conn.prepareStatement(updateStockQuery);
+                pstmt.setInt(1, Math.abs(quantity));
+                pstmt.setInt(2, productId);
+                pstmt.executeUpdate();
+                
+                // Remove item from cart
+                cart.remove(productId);
+                
+                // If cart is now empty, remove it from session
+                if (cart.isEmpty()) {
+                    session.removeAttribute("cart");
+                    conn.commit();
+                    out.print("Cart is empty");
+                    return;
+                }
+            } else { // Add to cart case
+                // Check stock availability first
+                String checkStockQuery = "SELECT Stock FROM products WHERE ProductID = ? FOR UPDATE";
+                pstmt = conn.prepareStatement(checkStockQuery);
+                pstmt.setInt(1, productId);
+                rs = pstmt.executeQuery();
+                
+                if (rs.next()) {
+                    int currentStock = rs.getInt("Stock");
+                    if (currentStock < quantity) {
+                        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                        out.print("Error: Insufficient stock. Only " + currentStock + " items available.");
+                        return;
+                    }
+                    
+                    // Update stock
+                    String updateStockQuery = "UPDATE products SET Stock = Stock - ? WHERE ProductID = ?";
+                    pstmt = conn.prepareStatement(updateStockQuery);
+                    pstmt.setInt(1, Math.abs(quantity));
+                    pstmt.setInt(2, productId);
+                    pstmt.executeUpdate();
+                    
+                    // Add or update product quantity in cart
+                    cart.put(productId, cart.getOrDefault(productId, 0) + quantity);
+                }
+            }
             
             // Save cart back to session
             session.setAttribute("cart", cart);

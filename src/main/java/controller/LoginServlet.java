@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 
 import db.GetConnection;
 import jakarta.servlet.*;
@@ -33,10 +34,15 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("role", role);
             int customerId = getCustomerIdByEmail(mailID);
             
+            if (customerId != -1) {
                 session.setAttribute("CustomerID", customerId);
+                HashMap<Integer, Integer> cart = new HashMap<>();
+                session.setAttribute("cart", cart);
                 response.sendRedirect(role.equalsIgnoreCase("admin") ? "usermanagement.jsp" : "homepage.jsp");
-             
-            
+            } else {
+                request.setAttribute("errorMessage", "Customer ID not found.");
+                request.getRequestDispatcher("login.jsp").forward(request, response);
+            }
         } else {
             request.setAttribute("errorMessage", "Invalid credentials or role!");
             request.getRequestDispatcher("login.jsp").forward(request, response);
