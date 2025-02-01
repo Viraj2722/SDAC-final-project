@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Modern Portal</title>
+    <title>Login Page</title>
     <style>
         /* Reset and Base Styles */
         * {
@@ -14,38 +14,38 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
 
-        /* Modern Dark Theme */
+        /* Dark Theme */
         body {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #000000;
-            color: #ffffff;
+            background-color: #121212;
+            color: #e0e0e0;
             padding: 1rem;
         }
 
         /* Card Container */
         .card {
             width: 100%;
-            max-width: 420px;
-            background: #111111;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.1), 0 2px 4px -1px rgba(255, 255, 255, 0.06);
+            max-width: 400px;
+            background: #1e1e1e;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
 
         /* Header Styles */
         .header {
-            padding: 2rem 2rem 1rem;
+            padding: 2rem 2rem 1.5rem;
             text-align: center;
         }
 
         .logo-container {
             width: 4rem;
             height: 4rem;
-            margin: 0 auto 1rem;
-            background: #ffffff;
+            margin: 0 auto 1.25rem;
+            background: #3a3a3a;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -53,21 +53,21 @@
         }
 
         .logo-container svg {
-            width: 2rem;
-            height: 2rem;
-            color: #000000;
+            width: 2.25rem;
+            height: 2.25rem;
+            color: #bb86fc;
         }
 
         .title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #ffffff;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #bb86fc;
             margin-bottom: 0.5rem;
         }
 
         .subtitle {
-            color: #a0aec0;
-            font-size: 0.875rem;
+            color: #9e9e9e;
+            font-size: 1rem;
         }
 
         /* Form Styles */
@@ -81,79 +81,80 @@
 
         .form-label {
             display: block;
-            font-size: 0.875rem;
+            font-size: 0.9375rem;
             font-weight: 500;
-            color: #e2e8f0;
-            margin-bottom: 0.5rem;
+            color: #bb86fc;
+            margin-bottom: 0.375rem;
         }
 
         .form-input,
         .form-select {
             width: 100%;
-            padding: 0.625rem 0.75rem;
-            border: 1px solid #2d3748;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid #3a3a3a;
             border-radius: 0.375rem;
-            font-size: 0.875rem;
-            transition: all 0.2s ease;
-            background: #1a202c;
-            color: #ffffff;
+            font-size: 1rem;
+            background: #2a2a2a;
+            color: #e0e0e0;
+            transition: border-color 0.2s ease;
         }
 
         .form-input:focus,
         .form-select:focus {
             outline: none;
-            border-color: #4a5568;
-            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+            border-color: #bb86fc;
         }
 
         /* Button Styles */
         .submit-button {
             width: 100%;
             padding: 0.75rem;
-            background: #4299e1;
-            color: #ffffff;
+            background: #bb86fc;
+            color: #121212;
             border: none;
             border-radius: 0.375rem;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: background-color 0.2s ease;
+            position: relative;
         }
 
         .submit-button:hover {
-            background: #3182ce;
+            background: #a174e8;
         }
 
         .submit-button:active {
-            background: #2b6cb0;
+            background: #8758e0;
         }
 
         /* Error Message */
         .error-message {
-            background: #742a2a;
-            border: 1px solid #9b2c2c;
-            color: #fed7d7;
+            background: #cf6679;
+            color: #121212;
             padding: 0.75rem;
             border-radius: 0.375rem;
-            font-size: 0.875rem;
-            margin-bottom: 1rem;
+            font-size: 0.9375rem;
+            margin-bottom: 1.25rem;
         }
 
         /* Links */
         .signup-link {
             text-align: center;
-            font-size: 0.875rem;
-            margin-top: 1rem;
+            font-size: 0.9375rem;
+            margin-top: 1.25rem;
+            color: #9e9e9e;
         }
 
         .signup-link a {
-            color: #4299e1;
+            color: #bb86fc;
             text-decoration: none;
             font-weight: 500;
             transition: color 0.2s ease;
         }
 
         .signup-link a:hover {
-            color: #3182ce;
+            color: #a174e8;
         }
 
         /* Loading Animation */
@@ -163,23 +164,26 @@
             }
         }
 
-        .loading .submit-button {
-            position: relative;
-            color: transparent;
-        }
-
-        .loading .submit-button::after {
-            content: '';
+        .submit-button .spinner {
+            display: none;
             position: absolute;
             left: 50%;
             top: 50%;
             width: 1.25rem;
             height: 1.25rem;
-            border: 2px solid #ffffff;
+            border: 2px solid #121212;
             border-top-color: transparent;
             border-radius: 50%;
             transform: translate(-50%, -50%);
             animation: spin 0.75s linear infinite;
+        }
+
+        .loading .submit-button {
+            color: transparent;
+        }
+
+        .loading .submit-button .spinner {
+            display: block;
         }
     </style>
 </head>
@@ -193,7 +197,7 @@
                 </svg>
             </div>
             <h1 class="title">Welcome Back</h1>
-            <p class="subtitle">Enter your credentials to access your account</p>
+            <p class="subtitle">Sign in to your account</p>
         </div>
 
         <div class="form-container">
@@ -205,13 +209,13 @@
 
             <form action="LoginServlet" method="POST" id="loginForm">
                 <div class="form-group">
-                    <label class="form-label" for="mailID">Email Address</label>
+                    <label class="form-label" for="mailID">Email</label>
                     <input type="email" id="mailID" name="mailID" class="form-input" placeholder="name@example.com" required>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" for="password">Password</label>
-                    <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" required>
                 </div>
 
                 <div class="form-group">
@@ -222,10 +226,13 @@
                     </select>
                 </div>
 
-                <button type="submit" class="submit-button">Sign In</button>
+                <button type="submit" class="submit-button">
+                    <span class="button-text">Sign In</span>
+                    <span class="spinner"></span>
+                </button>
 
                 <div class="signup-link">
-                    Don't have an account? <a href="signup.jsp">Sign up</a>
+                    No account? <a href="signup.jsp">Create one</a>
                 </div>
             </form>
         </div>
@@ -234,9 +241,11 @@
     <script>
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             const button = this.querySelector('.submit-button');
-            button.textContent = 'Signing in...';
-            this.classList.add('loading');
+            const buttonText = button.querySelector('.button-text');
+            buttonText.textContent = 'Signing in...';
+            button.classList.add('loading');
         });
     </script>
 </body>
 </html>
+

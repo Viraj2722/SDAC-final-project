@@ -185,6 +185,38 @@ to {
 .card:nth-child(3) {
 	animation-delay: 0.4s;
 }
+.btn-custom {
+	background: var(--accent-color);
+	color: white;
+	border: none;
+	border-radius: 25px;
+	padding: 8px 25px;
+	transition: all 0.3s ease;
+	position: relative;
+	overflow: hidden;
+}
+
+.btn-custom::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3),
+		transparent);
+	transition: 0.5s;
+}
+
+.btn-custom:hover::before {
+	left: 100%;
+}
+
+.btn-custom:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+	background: #5d4de6;
+}
 </style>
 <script>
         // Rating system
@@ -746,7 +778,7 @@ if (window.history.replaceState) {
 				</div>
 
 				<button
-					class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-200 add-to-cart-btn"
+					class="w-full btn-custom h-[50px] add-to-cart-btn"
 					<%=rs.getInt("Stock") > 0 ? "" : "disabled"%>
 					data-product-id="<%=rs.getInt("ProductID")%>"
 					data-product-name="<%=rs.getString("Name")%>"
@@ -925,7 +957,7 @@ if (window.history.replaceState) {
 					</div>
 
 					<button type="submit"
-						class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-200">
+						class="w-full btn-custom h-[50px]">
 						Submit Review</button>
 				</form>
 				<%

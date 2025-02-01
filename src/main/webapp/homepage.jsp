@@ -720,7 +720,7 @@ function logout() {
 	<nav class="navbar navbar-expand-lg navbar-light fixed-top">
 		<div class="container">
 			<!-- Logo with home link -->
-			<a class="navbar-brand" href="homepage.jsp"> ElementStore </a>
+			<a class="navbar-brand" href="homepage.jsp"> ShopHub </a>
 
 			<!-- Toggler for mobile -->
 			<button class="navbar-toggler" type="button"
