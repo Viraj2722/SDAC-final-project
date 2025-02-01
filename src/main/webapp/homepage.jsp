@@ -16,7 +16,7 @@ String userEmail = (String) userSession.getAttribute("mailID");
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ElementStore</title>
+<title>ShopHub</title>
 <link
 	href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
 	rel="stylesheet">
@@ -588,13 +588,6 @@ async function fetchAddress() {
         document.getElementById('deliveryAddress').textContent = 'Error loading address';
     }
 }
-
-document.getElementById('cartModal').addEventListener('shown.bs.modal', function() {
-    fetchAddress();
-});
-
-
-
 
 // Function to remove from cart
 function removeFromCart(productId, quantity) {
@@ -1526,6 +1519,10 @@ function logout() {
                 behavior: 'smooth'
             });
         });
+    });
+    
+    document.getElementById('cartModal').addEventListener('shown.bs.modal', function() {
+        fetchAddress();
     });
 </script>
 

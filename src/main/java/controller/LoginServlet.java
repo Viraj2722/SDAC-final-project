@@ -32,16 +32,21 @@ public class LoginServlet extends HttpServlet {
             HttpSession session = request.getSession();
             session.setAttribute("mailID", mailID);
             session.setAttribute("role", role);
-            int customerId = getCustomerIdByEmail(mailID);
-            
-            if (customerId != -1) {
-                session.setAttribute("CustomerID", customerId);
-                HashMap<Integer, Integer> cart = new HashMap<>();
-                session.setAttribute("cart", cart);
-                response.sendRedirect(role.equalsIgnoreCase("admin") ? "usermanagement.jsp" : "homepage.jsp");
+
+            if (role.equalsIgnoreCase("admin")) {
+                // Skip fetching CustomerID for admin
+                response.sendRedirect("usermanagement.jsp");
             } else {
-                request.setAttribute("errorMessage", "Customer ID not found.");
-                request.getRequestDispatcher("login.jsp").forward(request, response);
+                int customerId = getCustomerIdByEmail(mailID);
+                if (customerId != -1) {
+                    session.setAttribute("CustomerID", customerId);
+                    HashMap<Integer, Integer> cart = new HashMap<>();
+                    session.setAttribute("cart", cart);
+                    response.sendRedirect("homepage.jsp");
+                } else {
+                    request.setAttribute("errorMessage", "Customer ID not found.");
+                    request.getRequestDispatcher("login.jsp").forward(request, response);
+                }
             }
         } else {
             request.setAttribute("errorMessage", "Invalid credentials or role!");

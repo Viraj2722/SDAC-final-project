@@ -1,216 +1,262 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.time.LocalDate" %>
-<%@ page import="java.time.format.DateTimeFormatter" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ page import="java.time.LocalDate"%>
+<%@ page import="java.time.format.DateTimeFormatter"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generated Report</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.42.0/apexcharts.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <style>
-        /* Reuse styles from Admin Dashboard */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generated Report</title>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+	rel="stylesheet">
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.42.0/apexcharts.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* Reuse styles from Admin Dashboard */
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-        body {
-            background-color: #f0f2f5;
-            color: #1a1a1a;
-        }
+body {
+	background-color: #f0f2f5;
+	color: #1a1a1a;
+}
 
-        .layout-container {
-            display: flex;
-            min-height: 100vh;
-        }
+.layout-container {
+	display: flex;
+	min-height: 100vh;
+}
 
-        /* Sidebar Styles */
-        .sidebar {
-            width: 280px;
-            background-color: white;
-            box-shadow: 2px 0 4px rgba(0,0,0,0.1);
-            padding: 2rem 0;
-            position: fixed;
-            height: 100vh;
-            z-index: 100;
-        }
+/* Sidebar Styles */
+.sidebar {
+	width: 280px;
+	background-color: white;
+	box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+	padding: 2rem 0;
+	position: fixed;
+	height: 100vh;
+	z-index: 100;
+}
 
-        .sidebar-header {
-            padding: 0 1.5rem 2rem 1.5rem;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 1rem;
-        }
+.sidebar-header {
+	padding: 0 1.5rem 2rem 1.5rem;
+	border-bottom: 1px solid #eee;
+	margin-bottom: 1rem;
+}
 
-        .sidebar-logo {
-            color: #4834d4;
-            font-size: 1.5rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+.sidebar-logo {
+	color: #4834d4;
+	font-size: 1.5rem;
+	font-weight: bold;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
 
-        .sidebar-btn {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            width: 100%;
-            padding: 1rem 1.5rem;
-            background: none;
-            border: none;
-            color: #666;
-            text-align: left;
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+.sidebar-btn {
+	display: flex;
+	align-items: center;
+	gap: 0.8rem;
+	width: 100%;
+	padding: 1rem 1.5rem;
+	background: none;
+	border: none;
+	color: #666;
+	text-align: left;
+	font-size: 0.95rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.3s ease;
+}
 
-        .sidebar-btn:hover {
-            background-color: #f8f9fa;
-            color: #4834d4;
-        }
+.sidebar-btn:hover {
+	background-color: #f8f9fa;
+	color: #4834d4;
+}
 
-        .sidebar-btn.active {
-            background-color: #4834d4;
-            color: white;
-            position: relative;
-        }
+.sidebar-btn.active {
+	background-color: #4834d4;
+	color: white;
+	position: relative;
+}
 
-        /* Main Content Area */
-        .main-content {
-            flex: 1;
-            margin-left: 280px;
-            background-color: #f0f2f5;
-        }
-        .report-header, .report-section { background: white; padding: 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-left:20px; margin-right: 20px; margin-top:20px;}
-        .section-title { color: #2c3e50; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 20px; }
-        .download-btn, .back-btn { padding: 8px 16px; background-color: #2c3e50; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .download-btn:hover, .back-btn:hover { background-color: #34495e; }
-    </style>
+/* Main Content Area */
+.main-content {
+	flex: 1;
+	margin-left: 280px;
+	background-color: #f0f2f5;
+}
+
+.report-header, .report-section {
+	background: white;
+	padding: 25px;
+	border-radius: 10px;
+	margin-bottom: 20px;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+	margin-left: 20px;
+	margin-right: 20px;
+	margin-top: 20px;
+}
+
+.section-title {
+	color: #2c3e50;
+	border-bottom: 2px solid #f0f0f0;
+	padding-bottom: 10px;
+	margin-bottom: 20px;
+}
+
+.download-btn, .back-btn {
+	padding: 8px 16px;
+	background-color: #2c3e50;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.download-btn:hover, .back-btn:hover {
+	background-color: #34495e;
+}
+</style>
 </head>
 <body>
-    <div class="layout-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo">
-                    <i class="fas fa-shield-alt"></i>
-                    Admin Panel
-                </div>
-            </div>
-            <button class="sidebar-btn" onclick="location.href='DashboardServlet'">
-                <i class="fas fa-chart-pie"></i>
-                Dashboard
-            </button>
-            <button class="sidebar-btn" onclick="location.href='usermanagement.jsp'">
-                <i class="fas fa-users"></i>
-                User Management
-            </button>
-            <button class="sidebar-btn" onclick="location.href='feedbackmanagement.jsp'">
-                <i class="fas fa-comments"></i>
-                Feedback Management
-            </button>
-            <button class="sidebar-btn" onclick="location.href='productmanagement.jsp">
-                <i class="fas fa-box-open"></i>
-                Product Management
-            </button>
-            <button class="sidebar-btn" onclick="location.href='algomonitoring.jsp'">
-                <i class="fas fa-chart-line"></i>
-                Algorithm Monitoring
-            </button>
-            <button class="sidebar-btn active" onclick="location.href='ReportServlet'">
-                <i class="fas fa-file-download"></i>
-                Report Generation
-            </button>
-        </div>
-        <!-- Main Content -->
-        <div class="main-content">
-        <div class="report-header">
-            <div class="row">
-                <div class="col-md-8">
-                    <h2>Complete Analysis Report</h2>
-                    <p>Generated on: <%= LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy")) %></p>
-                </div>
-                <div class="col-md-4 text-end">
-                    <button class="download-btn" onclick="downloadReport('pdf')">Download PDF</button>
-                </div>
-            </div>
-        </div>
+	<div class="layout-container">
+		<!-- Sidebar -->
+		<div class="sidebar">
+			<div class="sidebar-header">
+				<div class="sidebar-logo">
+					<i class="fas fa-shield-alt"></i> Admin Panel
+				</div>
+			</div>
+			<button class="sidebar-btn"
+				onclick="location.href='DashboardServlet'">
+				<i class="fas fa-chart-pie"></i> Dashboard
+			</button>
+			<button class="sidebar-btn"
+				onclick="location.href='usermanagement.jsp'">
+				<i class="fas fa-users"></i> User Management
+			</button>
+			<button class="sidebar-btn"
+				onclick="location.href='feedbackmanagement.jsp'">
+				<i class="fas fa-comments"></i> Feedback Management
+			</button>
+			<button class="sidebar-btn"
+				onclick="location.href='productmanagement.jsp">
+				<i class="fas fa-box-open"></i> Product Management
+			</button>
+			<button class="sidebar-btn"
+				onclick="location.href='algomonitoring.jsp'">
+				<i class="fas fa-chart-line"></i> Algorithm Monitoring
+			</button>
+			<button class="sidebar-btn active"
+				onclick="location.href='ReportServlet'">
+				<i class="fas fa-file-download"></i> Report Generation
+			</button>
+		</div>
+		<!-- Main Content -->
+		<div class="main-content">
+			<div class="report-header">
+				<div class="row">
+					<div class="col-md-8">
+						<h2>Complete Analysis Report</h2>
+						<p>
+							Generated on:
+							<%=LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"))%></p>
+					</div>
+					<div class="col-md-4 text-end">
+						<button class="download-btn" onclick="downloadReport('pdf')">Download
+							PDF</button>
+					</div>
+				</div>
+			</div>
 
-        <!-- ABC Analysis Section -->
-        <div class="report-section">
-            <div class="d-flex justify-content-between align-items-center">
-                <h3 class="section-title">ABC Analysis</h3>
-                <div>
-                    <button class="download-btn" onclick="downloadChartData('abcChart', 'abc-analysis', 'pdf')">Download PDF</button>
-                </div>
-            </div>
-            <div id="abcChart" class="chart-container"></div>
-        </div>
+			<!-- ABC Analysis Section -->
+			<div class="report-section">
+				<div class="d-flex justify-content-between align-items-center">
+					<h3 class="section-title">ABC Analysis</h3>
+					<div>
+						<button class="download-btn"
+							onclick="downloadChartData('abcChart', 'abc-analysis', 'pdf')">Download
+							PDF</button>
+					</div>
+				</div>
+				<div id="abcChart" class="chart-container"></div>
+			</div>
 
-        <!-- Sales Analysis Section -->
-        <div class="report-section">
-            <div class="d-flex justify-content-between align-items-center">
-                <h3 class="section-title">Sales Trend Analysis</h3>
-                <div>
-                    <button class="download-btn" onclick="downloadChartData('salesChart', 'sales-analysis', 'pdf')">Download PDF</button>
-                  
-                </div>
-            </div>
-            <div id="salesChart" class="chart-container"></div>
-        </div>
+			<!-- Sales Analysis Section -->
+			<div class="report-section">
+				<div class="d-flex justify-content-between align-items-center">
+					<h3 class="section-title">Sales Trend Analysis</h3>
+					<div>
+						<button class="download-btn"
+							onclick="downloadChartData('salesChart', 'sales-analysis', 'pdf')">Download
+							PDF</button>
 
-        <!-- Demand Analysis Section -->
-        <div class="report-section">
-            <div class="d-flex justify-content-between align-items-center">
-                <h3 class="section-title">Demand Forecast Analysis</h3>
-                <div>
-                    <button class="download-btn" onclick="downloadChartData('demandForecastChart', 'demand-analysis', 'pdf')">Download PDF</button>
-                  
-                </div>
-            </div>
-            <div id="demandForecastChart" class="chart-container"></div>
-        </div>
+					</div>
+				</div>
+				<div id="salesChart" class="chart-container"></div>
+			</div>
 
-        <!-- Inventory Analysis Section -->
-        <div class="report-section">
-            <div class="d-flex justify-content-between align-items-center">
-                <h3 class="section-title">Inventory Turnover Analysis</h3>
-                <div>
-                    <button class="download-btn" onclick="downloadChartData('inventoryChart', 'inventory-analysis', 'pdf')">Download PDF</button>
-                 
-                </div>
-            </div>
-            <div id="inventoryChart" class="chart-container"></div>
-        </div>
+			<!-- Demand Analysis Section -->
+			<div class="report-section">
+				<div class="d-flex justify-content-between align-items-center">
+					<h3 class="section-title">Demand Forecast Analysis</h3>
+					<div>
+						<button class="download-btn"
+							onclick="downloadChartData('demandForecastChart', 'demand-analysis', 'pdf')">Download
+							PDF</button>
 
-        <!-- Profitability Analysis Section -->
-        <div class="report-section">
-            <div class="d-flex justify-content-between align-items-center">
-                <h3 class="section-title">Product Profitability Analysis</h3>
-                <div>
-                    <button class="download-btn" onclick="downloadChartData('profitabilityChart', 'profit-analysis', 'pdf')">Download PDF</button>
-                </div>
-            </div>
-            <div id="profitabilityChart" class="chart-container"></div>
-        </div>
-    </div>
-    </div>
+					</div>
+				</div>
+				<div id="demandForecastChart" class="chart-container"></div>
+			</div>
 
-    <script>
+			<!-- Inventory Analysis Section -->
+			<div class="report-section">
+				<div class="d-flex justify-content-between align-items-center">
+					<h3 class="section-title">Inventory Turnover Analysis</h3>
+					<div>
+						<button class="download-btn"
+							onclick="downloadChartData('inventoryChart', 'inventory-analysis', 'pdf')">Download
+							PDF</button>
+
+					</div>
+				</div>
+				<div id="inventoryChart" class="chart-container"></div>
+			</div>
+
+			<!-- Profitability Analysis Section -->
+			<div class="report-section">
+				<div class="d-flex justify-content-between align-items-center">
+					<h3 class="section-title">Product Profitability Analysis</h3>
+					<div>
+						<button class="download-btn"
+							onclick="downloadChartData('profitabilityChart', 'profit-analysis', 'pdf')">Download
+							PDF</button>
+					</div>
+				</div>
+				<div id="profitabilityChart" class="chart-container"></div>
+			</div>
+		</div>
+	</div>
+
+	<script>
     
     let abcData = <%=request.getAttribute("abcData")%>;
     let salesData = <%=request.getAttribute("salesData")%>;
-    
     if (typeof abcData === 'string') {
         try {
             abcData = JSON.parse(abcData);
@@ -363,7 +409,7 @@
             // Create and render the chart
             const chart = new ApexCharts(document.querySelector("#salesChart"), options);
             chart.render();
-            chartInstances.salesChart = chart; 
+            chartInstances.salesChart = chart;
 
         } catch (error) {
             console.error("Error in createChart:", error);
@@ -573,21 +619,21 @@
                     {
                         name: 'Forecast Monthly Demand',
                         data: demandData.map(item => ({
-                            x: item.product_name,
+                            x: 'Product ' + item.product_id,
                             y: item.forecast_monthly_demand
                         }))
                     },
                     {
                         name: 'Current Stock',
                         data: demandData.map(item => ({
-                            x: item.product_name,
+                            x: 'Product ' + item.product_id,
                             y: item.current_stock
                         }))
                     },
                     {
                         name: 'Suggested Order',
                         data: demandData.map(item => ({
-                            x: item.product_name,
+                            x: 'Product ' + item.product_id,
                             y: item.suggested_order
                         }))
                     }
@@ -725,7 +771,7 @@
                         name: 'Profit',
                         type: 'column',
                         data: profitData.map(item => ({
-                            x: 'Product ' + item.ProductName,
+                            x: 'Product ' + item.ProductID,
                             y: item.Profit
                         }))
                     },
@@ -733,7 +779,7 @@
                         name: 'Profit Margin (%)',
                         type: 'line',
                         data: profitData.map(item => ({
-                            x: 'Product ' + item.ProductName,
+                            x: 'Product ' + item.ProductID,
                             y: item.ProfitMargin
                         }))
                     }
@@ -841,7 +887,7 @@
         const chartInstances = {};
 
         // Download chart data as PDF or Excel
-        async function downloadChartData(chartId, filename, format) {
+       async function downloadChartData(chartId, filename, format) {
     console.log(chartId);
     const chart = chartInstances[chartId];
     if (!chart) {
@@ -851,47 +897,168 @@
 
     if (format === 'pdf') {
         try {
-            // Create new jsPDF instance
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            
+            let yOffset = 10;
+
+            // Add title
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(16);
+            doc.text(chart.w.config.title.text || chartId, 15, yOffset);
+            yOffset += 10;
+
+            // Add chart image
             const { imgURI } = await chart.dataURI();
             const chartWidth = chart.w.globals.svgWidth;
             const chartHeight = chart.w.globals.svgHeight;
             const aspectRatio = chartHeight / chartWidth;
 
-            // Use a reasonable base width for the PDF
-            const baseWidth = 160; // Slightly smaller than 180 to leave margins
+            const baseWidth = 160;
             const width = baseWidth;
-            const height = baseWidth * aspectRatio; // This maintains the circular shape
+            const height = baseWidth * aspectRatio;
 
-            // Add image with calculated dimensions
-            doc.addImage(imgURI, 'PNG', 15, 10, width, height);
+            doc.addImage(imgURI, 'PNG', 15, yOffset, width, height);
+            yOffset += height + 10;
+
+            // Helper function for creating table (same as in downloadReport)
+            function createTable(headers, data, startY) {
+                const margin = 15;
+                const pageWidth = doc.internal.pageSize.width;
+                const maxTableWidth = pageWidth - (margin * 2);
+                const cellWidth = maxTableWidth / headers.length;
+                const cellPadding = 2;
+                const fontSize = 10;
+                const lineHeight = fontSize * 1.2;
+                
+                doc.setFontSize(fontSize);
+                
+                function getRowHeight(row) {
+                    let maxLines = 1;
+                    row.forEach((cell, i) => {
+                        const textWidth = cellWidth - (cellPadding * 2);
+                        const lines = doc.splitTextToSize(String(cell), textWidth);
+                        maxLines = Math.max(maxLines, lines.length);
+                    });
+                    return maxLines * lineHeight + (cellPadding * 2);
+                }
+                
+                // Draw headers
+                doc.setFillColor(240, 240, 240);
+                const headerHeight = getRowHeight(headers);
+                doc.rect(margin, startY, maxTableWidth, headerHeight, 'F');
+                doc.setFont('helvetica', 'bold');
+                
+                headers.forEach((header, i) => {
+                    const x = margin + (i * cellWidth) + cellPadding;
+                    const lines = doc.splitTextToSize(header, cellWidth - (cellPadding * 2));
+                    doc.text(lines, x, startY + lineHeight);
+                });
+                
+                // Draw data
+                let currentY = startY + headerHeight;
+                doc.setFont('helvetica', 'normal');
+                
+                for (let rowIndex = 0; rowIndex < data.length; rowIndex++) {
+                    const row = data[rowIndex];
+                    const rowHeight = getRowHeight(row);
+                    
+                    if (currentY + rowHeight > doc.internal.pageSize.height - margin) {
+                        doc.addPage();
+                        currentY = margin;
+                        
+                        doc.setFillColor(240, 240, 240);
+                        doc.rect(margin, currentY, maxTableWidth, headerHeight, 'F');
+                        doc.setFont('helvetica', 'bold');
+                        headers.forEach((header, i) => {
+                            const x = margin + (i * cellWidth) + cellPadding;
+                            const lines = doc.splitTextToSize(header, cellWidth - (cellPadding * 2));
+                            doc.text(lines, x, currentY + lineHeight);
+                        });
+                        currentY += headerHeight;
+                        doc.setFont('helvetica', 'normal');
+                    }
+                    
+                    row.forEach((cell, cellIndex) => {
+                        const x = margin + (cellIndex * cellWidth);
+                        doc.rect(x, currentY, cellWidth, rowHeight);
+                        const lines = doc.splitTextToSize(String(cell), cellWidth - (cellPadding * 2));
+                        doc.text(lines, x + cellPadding, currentY + lineHeight);
+                    });
+                    
+                    currentY += rowHeight;
+                }
+                
+                return currentY + 10;
+            }
+
+            // Add table based on chart type
+            const series = chart.w.config.series;
+            
+            switch(chartId) {
+                case 'abcChart':
+                    const abcHeaders = ['Product Name', 'Total Value', 'Classification'];
+                    const dbData = abcData;
+                    const dispData = dbData.map(item => [
+                        item.product_name,
+                        item.annual_revenue.toFixed(2),
+                        item.classification
+                    ]);
+                    yOffset = createTable(abcHeaders, dispData, yOffset);
+                    break;
+
+                case 'salesChart':
+                    const salesHeaders = ['Month', 'Current Sales ($)', 'Previous Sales ($)', 'Growth (%)'];
+                    const salesData1 = salesData;
+                    const dispData2 = salesData1.map(item => [
+                    	item.Month,
+                    	item.CurrentMonthSales,
+                    	item.PreviousMonthSales,
+                    	item.GrowthRate
+                    ]
+                    );
+                    yOffset = createTable(salesHeaders, dispData2, yOffset);
+                    break;
+
+                case 'demandForecastChart':
+                    const demandHeaders = ['Product', 'Forecast', 'Current Stock', 'Suggested Order'];
+                    const demandData = series[0].data.map((item, idx) => [
+                        item.x,
+                        series[0].data[idx].y,
+                        series[1].data[idx].y,
+                        series[2].data[idx].y
+                    ]);
+                    yOffset = createTable(demandHeaders, demandData, yOffset);
+                    break;
+
+                case 'inventoryChart':
+                    const inventoryHeaders = ['Product', 'Turnover Ratio', 'Days Outstanding', 'Units Sold'];
+                    const inventoryData = series[0].data.map((item, idx) => [
+                        item.x,
+                        series[0].data[idx].y,
+                        series[1].data[idx].y,
+                        series[2].data[idx].y
+                    ]);
+                    yOffset = createTable(inventoryHeaders, inventoryData, yOffset);
+                    break;
+
+                case 'profitabilityChart':
+                    const profitHeaders = ['Product', 'Profit ($)', 'Profit Margin (%)'];
+                    const profitData = series[0].data.map((item, idx) => [
+                        item.x,
+                        series[0].data[idx].y.toFixed(2),
+                        series[1].data[idx].y.toFixed(2)
+                    ]);
+                    yOffset = createTable(profitHeaders, profitData, yOffset);
+                    break;
+            }
+
             doc.save(`${filename}.pdf`);
         } catch (error) {
             console.error("Error generating PDF:", error);
         }
-    } else if (format === 'excel') {
-        // Excel export code remains the same
-        const series = chart.w.config.series || [];
-        const rows = [['Series', 'Category', 'Value']]; // Header row
-
-        series.forEach(s => {
-            (s.data || []).forEach(point => {
-                rows.push([s.name, point.x, point.y]);
-            });
-        });
-
-        if (rows.length > 1) {
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.aoa_to_sheet(rows);
-            XLSX.utils.book_append_sheet(wb, ws, 'Chart Data');
-            XLSX.writeFile(wb, `${filename}.xlsx`);
-        } else {
-            console.warn("No data available for export.");
-        }
     }
 }
+        
 
         async function downloadReport(format) {
             const chartIds = [
@@ -908,6 +1075,14 @@
                 let pageHeight = doc.internal.pageSize.height;
                 let yOffset = 10;
 
+                try {
+                	
+                	function calculateDimensions(imgWidth, imgHeight, maxWidth) {
+                        const aspectRatio = imgHeight / imgWidth;
+                        const width = Math.min(maxWidth, imgWidth);
+                        const height = width * aspectRatio;
+                        return { width, height };
+                    }
                     // Helper function to create table
                     function createTable(headers, data, startY) {
     const margin = 15;
@@ -1012,7 +1187,7 @@
                             switch(chartIds[i]) {
                                 case 'abcChart':
                                     const abcHeaders = ['Product Name','Total Value','Classification'];
-                                    const dbData = abcData
+                                    const dbData = abcData;
                                     
                                     const dispData = dbData.map(item => [
                                     	item.product_name,
@@ -1024,15 +1199,14 @@
 
                                 case 'salesChart':
                                     const salesHeaders = ['Month', 'Current Sales ($)', 'Previous Sales ($)', 'Growth (%)'];
-                                    
-                                    const salesData1 = salesData
-                                    
-                                    const dispData1 = salesData1.map(item => [
+                                    const salesData2 = salesData;
+                                    const dispData1 = salesData2.map(item => [
                                     	item.Month,
                                     	item.CurrentMonthSales,
                                     	item.PreviousMonthSales,
                                     	item.GrowthRate
-                                    ]);
+                                    ]
+                                    );
                                     yOffset = createTable(salesHeaders, dispData1, yOffset);
                                     break;
 
@@ -1071,18 +1245,47 @@
                         }
                     }
                     doc.save('complete_analysis_report.pdf');
-                
-            } 
+                } catch (error) {
+                    console.error("Error generating PDF report:", error);
+                }
+            } else if (format === 'excel') {
+                // Existing Excel export code remains unchanged
+                const wb = XLSX.utils.book_new();
+                chartIds.forEach(chartId => {
+                    const chart = chartInstances[chartId];
+                    if (!chart) {
+                        console.warn(`Chart with ID ${chartId} not found.`);
+                        return;
+                    }
+
+                    const series = chart.w.config.series || [];
+                    const rows = [['Series', 'Category', 'Value']];
+
+                    series.forEach(s => {
+                        (s.data || []).forEach(point => {
+                            rows.push([s.name, point.x, point.y]);
+                        });
+                    });
+
+                    if (rows.length > 1) {
+                        const ws = XLSX.utils.aoa_to_sheet(rows);
+                        XLSX.utils.book_append_sheet(wb, ws, chartId);
+                    }
+                });
+
+                XLSX.writeFile(wb, 'complete_analysis_report.xlsx');
+            }
+        }
         
 
         // Initialize charts
         document.addEventListener('DOMContentLoaded', function() {
             try {
-                const rawSalesData = <%= request.getAttribute("salesData") %>;
-                const rawAbcData = <%= request.getAttribute("abcData") %>;
-                const rawInventoryData = <%= request.getAttribute("inventoryData") %>;
-                const rawDemandData = <%= request.getAttribute("demandData") %>;
-                const rawProfitData = <%= request.getAttribute("profitData") %>;
+                const rawSalesData = <%=request.getAttribute("salesData")%>;
+                const rawAbcData = <%=request.getAttribute("abcData")%>;
+                const rawInventoryData = <%=request.getAttribute("inventoryData")%>;
+                const rawDemandData = <%=request.getAttribute("demandData")%>;
+                const rawProfitData = <%=request.getAttribute("profitData")%>;
                 
                 console.log('Raw sales data from server:', rawSalesData);
                 console.log('Raw ABC data from server:', rawAbcData);

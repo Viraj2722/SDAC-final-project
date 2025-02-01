@@ -29,8 +29,16 @@ public class AddToCartServlet extends HttpServlet {
         try {
             conn = GetConnection.getConnection();
             
-            // Retrieve cart from session
-            HashMap<Integer, Integer> cart = (HashMap<Integer, Integer>) session.getAttribute("cart");
+            // Get the user's email
+            String userEmail = (String) session.getAttribute("mailID");
+            if (userEmail == null) {
+                out.print("Cart is empty");
+                return;
+            }
+            
+            // Get user-specific cart from session using email as key
+            String cartKey = "cart_" + userEmail;
+            HashMap<Integer, Integer> cart = (HashMap<Integer, Integer>) session.getAttribute(cartKey);
             
             if (cart == null || cart.isEmpty()) {
                 out.print("Cart is empty");
@@ -74,15 +82,24 @@ public class AddToCartServlet extends HttpServlet {
         ResultSet rs = null;
         
         try {
+            // Check if user is logged in
+            String userEmail = (String) session.getAttribute("mailID");
+            if (userEmail == null) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                out.print("Error: Please login to add items to cart");
+                return;
+            }
+            
             conn = GetConnection.getConnection();
-            conn.setAutoCommit(false); // Start transaction
+            conn.setAutoCommit(false);
             
             // Get parameters from request
             int productId = Integer.parseInt(request.getParameter("productId"));
             int quantity = Integer.parseInt(request.getParameter("quantity"));
             
-            // Get or create cart in session
-            HashMap<Integer, Integer> cart = (HashMap<Integer, Integer>) session.getAttribute("cart");
+            // Get or create user-specific cart in session
+            String cartKey = "cart_" + userEmail;
+            HashMap<Integer, Integer> cart = (HashMap<Integer, Integer>) session.getAttribute(cartKey);
             if (cart == null) {
                 cart = new HashMap<>();
             }
@@ -100,7 +117,7 @@ public class AddToCartServlet extends HttpServlet {
                 
                 // If cart is now empty, remove it from session
                 if (cart.isEmpty()) {
-                    session.removeAttribute("cart");
+                    session.removeAttribute(cartKey);
                     conn.commit();
                     out.print("Cart is empty");
                     return;
@@ -132,8 +149,8 @@ public class AddToCartServlet extends HttpServlet {
                 }
             }
             
-            // Save cart back to session
-            session.setAttribute("cart", cart);
+            // Save cart back to session with user-specific key
+            session.setAttribute(cartKey, cart);
             
             // Return cart data with product names
             StringBuilder cartData = new StringBuilder();
@@ -147,13 +164,13 @@ public class AddToCartServlet extends HttpServlet {
                        .append(productInfo.name).append("\n");
             }
             
-            conn.commit(); // Commit transaction
+            conn.commit();
             out.print(cartData.toString());
             
         } catch (Exception e) {
             try {
                 if (conn != null) {
-                    conn.rollback(); // Rollback in case of error
+                    conn.rollback();
                 }
             } catch (Exception rollbackEx) {
                 rollbackEx.printStackTrace();

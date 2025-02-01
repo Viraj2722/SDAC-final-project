@@ -11,23 +11,28 @@ import jakarta.servlet.http.Cookie;
 
 @WebServlet("/LogoutServlet")
 public class LogoutServlet extends HttpServlet {
-    private static final long serialVersionUID = 1L;
-       
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         try {
-            // Get the session
             HttpSession session = request.getSession(false);
             
             if(session != null) {
-                // Clear session attributes
-                session.removeAttribute("mailID");
-                session.removeAttribute("role");
+                String userEmail = (String) session.getAttribute("mailID");
+                if (userEmail != null) {
+                    // Store cart temporarily
+                    Object cart = session.getAttribute("cart_" + userEmail);
+                    
+                    // Clear only authentication-related attributes
+                    session.removeAttribute("mailID");
+                    session.removeAttribute("role");
+                    
+                    // Restore cart to session if it exists
+                    if (cart != null) {
+                        session.setAttribute("cart_" + userEmail, cart);
+                    }
+                }
                 
-                // Invalidate the session
-                session.invalidate();
-                
-                // Clear any cookies if they exist
+                // Clear cookies if they exist
                 Cookie[] cookies = request.getCookies();
                 if (cookies != null) {
                     for (Cookie cookie : cookies) {
@@ -39,19 +44,11 @@ public class LogoutServlet extends HttpServlet {
                 }
             }
             
-            // Redirect to login page
             response.sendRedirect("login.jsp");
             
         } catch (Exception e) {
             e.printStackTrace();
-            // If any error occurs, still try to redirect to login
             response.sendRedirect("login.jsp");
         }
-    }
-    
-    // Handle POST requests the same way as GET
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
-            throws ServletException, IOException {
-        doGet(request, response);
     }
 }
